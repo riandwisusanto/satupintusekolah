@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Helpers\ApiQueryHelper;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Role\StoreRequest;
-use App\Http\Requests\Role\UpdateRequest;
+use App\Http\Requests\Role\RoleRequest;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\RoleUser;
@@ -38,7 +37,7 @@ class RoleController extends Controller
         }
     }
 
-    public function store(StoreRequest $request)
+    public function store(RoleRequest $request)
     {
         $validated = $request->validated();
         DB::beginTransaction();
@@ -57,7 +56,7 @@ class RoleController extends Controller
         }
     }
 
-    public function update(UpdateRequest $request, $id)
+    public function update(RoleRequest $request, $id)
     {
         $validated = $request->validated();
         DB::beginTransaction();

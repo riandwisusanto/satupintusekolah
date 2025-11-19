@@ -49,7 +49,7 @@ const props = defineProps({
     type: {
         type: String,
         default: 'text',
-        validator: (v) => ['text', 'number', 'date', 'textarea'].includes(v),
+        validator: (v) => ['text', 'number', 'date', 'textarea', 'email'].includes(v),
     },
     money: Boolean,
     label: String,

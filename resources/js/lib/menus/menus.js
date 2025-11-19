@@ -14,6 +14,7 @@ export const sidebarMenus = [
             {
                 key: 'users',
                 label: 'Pengguna',
+                icon: 'fas fa-users',
                 to: '/master-data/users',
                 permission: 'master_data.users.view',
             },

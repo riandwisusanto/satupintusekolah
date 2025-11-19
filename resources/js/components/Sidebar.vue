@@ -210,7 +210,6 @@ watch(
     color: #ffffff !important;
 }
 
-
 .sidebar .nav-sidebar .nav-link,
 .sidebar .nav-treeview .nav-link {
     transition:

@@ -48,6 +48,11 @@
   color: #fff !important;
 }
 
+.swal2-container,
+.swal2-popup {
+    z-index: 99999 !important;
+}
+
 @media (max-width: 768px) {
   .main-sidebar {
     width: 250px !important;

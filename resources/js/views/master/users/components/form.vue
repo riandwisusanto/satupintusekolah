@@ -2,10 +2,23 @@
     <FormDrawer
         v-model="visible"
         :title="selected ? 'Ubah Pengguna' : 'Tambah Pengguna'"
-        width="400"
+        width="500"
         @save="saveItem"
     >
-        <FormInput v-model="form.name" label="Nama" />
+        <FormInput v-model="form.name" label="Nama" required />
+        <FormInput type="email" v-model="form.email" label="Email" required />
+        <FormInputPhone v-model="form.phone" label="No. HP" />
+        <FormInputNIP v-model="form.nip" label="NIP" />
+        <FormSelectRole v-model="form.role_id" label="Role" required />
+        <FormInput
+            v-model="form.password"
+            :label="!form.id ? 'Password' : 'Password Baru'"
+            type="password"
+            :required="!form.id"
+        />
+        <small v-if="form.id"
+            >* Biarkan kosong jika tidak ubah password</small
+        >
         <FormToggleStatus v-model="form.active" />
     </FormDrawer>
 </template>
@@ -25,6 +38,9 @@ const props = defineProps({
     },
 })
 
+console.log({props});
+
+
 const emit = defineEmits(['update:visible', 'save'])
 const visible = computed({
     get: () => props.visible,
@@ -40,6 +56,9 @@ function close() {
 const form = reactive({
     id: null,
     name: '',
+    phone: '',
+    nip: '',
+    email: '',
     active: true,
 })
 
@@ -68,6 +87,9 @@ function resetForm() {
     Object.assign(form, {
         id: null,
         name: '',
+        phone: '',
+        nip: '',
+        email: '',
         active: true,
     })
 }
