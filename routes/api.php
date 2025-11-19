@@ -21,6 +21,8 @@ Route::prefix('v1')
 
             Route::apiResource('users', \App\Http\Controllers\Api\v1\UserController::class);
             Route::apiResource('roles', \App\Http\Controllers\Api\v1\RoleController::class);
+            Route::apiResource('classrooms', \App\Http\Controllers\Api\v1\ClassroomController::class);
+            Route::apiResource('students', \App\Http\Controllers\Api\v1\StudentController::class);
             Route::get('permissions/options', [App\Http\Controllers\Api\v1\RoleController::class, 'getPermissions']);
         });
     });

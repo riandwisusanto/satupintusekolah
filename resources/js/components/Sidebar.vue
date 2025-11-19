@@ -66,15 +66,24 @@ const afterLeave = (el) => {
 watch(
     () => route.path,
     (newPath) => {
-        const match = menus.find((prefix) => newPath.startsWith(`/${prefix}`))
+        // cari parent berdasarkan anak
+        const parent = sidebarMenus.find(menu => {
+            if (!menu.children) return false
+            return menu.children.some(child => newPath.startsWith(child.to))
+        })
 
-        // console.log({
-        //   newPath,
-        //   menus,
-        //   openMenu,
-        //   match
-        // });
-        openMenu.value = match || ''
+        // jika ketemu parent → buka parent
+        if (parent) {
+            openMenu.value = parent.key
+            return
+        }
+
+        // fallback ke menu single (tanpa children)
+        const single = sidebarMenus.find(menu => {
+            return !menu.children && newPath.startsWith(menu.to)
+        })
+
+        openMenu.value = single ? single.key : ''
     },
     { immediate: true }
 )
@@ -184,6 +193,12 @@ watch(
 .sidebar::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
+}
+
+.sidebar .nav-link,
+.sidebar .brand-text {
+    color: #ffffff !important;
+    font-weight: 400;
 }
 
 .nav-sidebar .nav-link.active {

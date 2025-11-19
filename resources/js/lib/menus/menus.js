@@ -18,6 +18,20 @@ export const sidebarMenus = [
                 to: '/master-data/users',
                 permission: 'master_data.users.view',
             },
+            {
+                key: 'classrooms',
+                label: 'Kelas',
+                icon: 'fas fa-school',
+                to: '/master-data/classrooms',
+                permission: 'master_data.classrooms.view',
+            },
+            {
+                key: 'students',
+                label: 'Siswa',
+                icon: 'fas fa-user-graduate',
+                to: '/master-data/students',
+                permission: 'master_data.students.view',
+            },
         ],
     }
 ]
