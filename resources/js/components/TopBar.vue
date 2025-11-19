@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useUser } from '../store.js'
 import { alertSuccess, alertError } from '../lib/alert.js'
 import { useLocalStorage } from '@vueuse/core'
@@ -98,6 +98,16 @@ const logout = async () => {
         await alertError(responseBody.message)
     }
 }
+
+const profilePhoto = computed(() => {
+    if (credential.user.user.photo) {
+        return credential.user.user.photo
+    }
+
+    return '/public/assets/images/avatar5.png'
+})
+
+
 </script>
 
 <template>
@@ -138,7 +148,7 @@ const logout = async () => {
                     data-toggle="dropdown"
                 >
                     <img
-                        src="/public/assets/images/avatar5.png"
+                        :src="profilePhoto"
                         class="rounded-circle shadow"
                         alt="User Image"
                         style="width: 32px; height: 32px; object-fit: cover"
@@ -148,10 +158,10 @@ const logout = async () => {
                 <ul class="dropdown-menu dropdown-menu-right">
                     <li
                         class="user-header d-flex flex-column align-items-center"
-                        style="background-color: #07945f"
+                        style="background: linear-gradient(to bottom, #4a90e2, #7ed6df);"
                     >
                         <img
-                            src="/public/assets/images/avatar5.png"
+                            :src="profilePhoto"
                             class="rounded-circle shadow"
                             alt="User Image"
                         />

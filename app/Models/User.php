@@ -32,6 +32,8 @@ class User extends Authenticatable
         'active',
     ];
 
+    protected $appends = ['editable', 'deleteable'];
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -53,6 +55,16 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getEditableAttribute(): bool
+    {
+        return $this->id !== auth()->user()->id;
+    }
+
+    public function getDeleteableAttribute(): bool
+    {
+        return $this->id !== auth()->user()->id;
     }
 
     public function role()

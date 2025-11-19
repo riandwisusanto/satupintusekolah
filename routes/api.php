@@ -18,5 +18,9 @@ Route::prefix('v1')
             Route::post('logout', [AuthController::class, 'logout']);
             Route::get('me', [AuthController::class, 'me']);
             Route::patch('configurations/{name}', [ConfigurationSettingController::class, 'update']);
+
+            Route::apiResource('users', \App\Http\Controllers\Api\v1\UserController::class);
+            Route::apiResource('roles', \App\Http\Controllers\Api\v1\RoleController::class);
+            Route::get('permissions/options', [App\Http\Controllers\Api\v1\RoleController::class, 'getPermissions']);
         });
     });

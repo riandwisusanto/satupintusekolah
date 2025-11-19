@@ -9,10 +9,12 @@ import { DasboardRoutes } from '../views/dashboard/routes.js'
 import { ErrorRoutes } from '../views/errors/routes.js'
 import { AuthRoutes } from '../views/auth/routes.js'
 import { DeveloperRoutes } from '../views/developer/routes.js'
+import { MasterDataRoutes } from '../views/master/routes.js'
 
 // Route children dari Main Layout
 const MainChildren = [
     ...DasboardRoutes,
+    ...MasterDataRoutes,
 ]
 
 const routesMain = {
@@ -37,9 +39,9 @@ const routes = [
         },
     },
     ...AuthRoutes,
+    routesMain,
     ...DeveloperRoutes,
     ...ErrorRoutes,
-    routesMain,
 ]
 
 const router = createRouter({

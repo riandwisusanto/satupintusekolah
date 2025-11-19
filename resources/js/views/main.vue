@@ -99,11 +99,12 @@ const backgroundStyle = computed(() => {
 
 .content-area {
     position: relative;
-    min-height: calc(100vh - 120px); /* tergantung tinggi navbar + footer */
+    min-height: calc(100vh - 120px);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     padding: 20px;
+    /* HAPUS z-index kalau kamu pernah set */
 }
 
 .overlay {
