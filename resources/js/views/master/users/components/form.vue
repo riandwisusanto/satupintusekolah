@@ -9,12 +9,6 @@
         <FormInput type="email" v-model="form.email" label="Email" required />
         <FormInputPhone v-model="form.phone" label="No. HP" />
         <FormInputNIP v-model="form.nip" label="NIP" />
-        <FileUpload 
-            v-model="form.photo" 
-            label="Foto" 
-            accept="jpeg,jpg,png"
-            :required="!form.id"
-        />
         <FormSelectRole v-model="form.role_id" label="Role" required />
         <FormInput
             v-model="form.password"
@@ -25,6 +19,14 @@
         <small v-if="form.id"
             >* Biarkan kosong jika tidak ubah password</small
         >
+
+        <FileUpload 
+            v-model="form.photo" 
+            label="Foto" 
+            accept="jpeg,jpg,png"
+            :required="!form.id"
+            class="mt-3"
+        />
         <FormToggleStatus v-model="form.active" />
     </FormDrawer>
 </template>

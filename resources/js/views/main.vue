@@ -25,11 +25,8 @@ const me = async () => {
 
     const { user } = data.data
     credential.setUser({
-        name: user.name,
-        role: user.roles,
-        permissions: user.permissions,
-        email: user.email,
-        employe: user.employe,
+        user: user,
+        permissions: user.permissions
     })
 
     loading.value = false

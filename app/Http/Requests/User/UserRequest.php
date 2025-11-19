@@ -27,11 +27,23 @@ class UserRequest extends FormRequest
 
         $rules = [
             'name'      => 'required|string|max:255',
-            'email'     => 'required|string|email|unique:users,email,' . $this->route('id'),
-            'nip'       => 'nullable|string|max:255|unique:users,nip,' . $this->route('id'),
-            'phone'     => 'nullable|string|max:255|unique:users,phone,' . $this->route('id'),
-            'photo'     => [
+            'email' => [
+                'required',
+                'string',
+                'email',
+                Rule::unique('users', 'email')->ignore($this->route('id') ?? $this->route('user')),
+            ],
+            'nip' => [
+                'nullable',
+                Rule::unique('users', 'nip')->ignore($this->route('id') ?? $this->route('user')),
+            ],
+            'phone' => [
+                'nullable',
+                Rule::unique('users', 'phone')->ignore($this->route('id') ?? $this->route('user')),
+            ],
+            'photo' => [
                 $isUpdate ? 'nullable' : 'required',
+                'sometimes',
                 function ($attribute, $value, $fail) {
                     if ($value instanceof UploadedFile) {
                         $allowed = ['image/jpeg', 'image/png', 'image/jpg'];
@@ -42,8 +54,12 @@ class UserRequest extends FormRequest
                         if ($value->getSize() > $maxSize) {
                             $fail('Ukuran file maksimal 2MB');
                         }
-                    } elseif (!is_string($value) && !is_null($value)) {
-                        $fail('Field tidak valid');
+                        return;
+                    }
+
+                    // selain file upload, HARUS dianggap kosong, bukan error
+                    if ($value === null || $value === '' || $value === 'null') {
+                        return; // valid, abaikan
                     }
                 }
             ],

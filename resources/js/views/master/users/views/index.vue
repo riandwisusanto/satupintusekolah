@@ -55,31 +55,56 @@ const editItem = (row) => {
     drawer.value = true
 }
 
-const save = async (row) => {
+function buildPayload(form) {
+    const hasFile = form.photo instanceof File
+
+    if (!hasFile) {
+        delete form.photo
+        return {
+            type: 'json',
+            body: {
+                ...form,
+            },
+        }
+    }
+
+    const fd = new FormData()
+    if (form.id)
+        fd.append('_method', 'PUT')
+
+    Object.keys(form).forEach((key) => {
+        fd.append(key, form[key])
+    })
+
+    return { type: 'formdata', body: fd }
+}
+
+const handleSave = async (row) => {
     alretConfirm('save').then(async (result) => {
         if (result.isConfirmed) {
-            loading.value = true
-            let endpoint = `users`
-            if (row.id) {
-                endpoint = `users/${row.id}`
-            }
-            const { ok, data, error } = await apiRequest(endpoint, {
-                method: row.id ? 'put' : 'post',
-                body: row,
-            })
-
-            if (ok) {
-                alertSuccess(data.message)
-
-                drawer.value = false
-                tableRef.value?.reload()
-            } else {
-                alertError(error)
-            }
-
-            loading.value = false
+            save(row)
         }
     })
+}
+
+const save = async (row) => {
+    loading.value = true
+    const { type, body } = buildPayload(row)
+
+    const { ok, data, error } = await apiRequest('users' + (row.id ? `/${row.id}` : ''), {
+        method: type === 'json' && row.id ? 'put' : 'post',
+        body,
+        headers: type === 'json' ? {} : { 'Content-Type': 'multipart/form-data' },
+    })
+    if (ok) {
+        alertSuccess('Data berhasil disimpan')
+        drawer.value = false
+        tableRef.value?.reload()
+    } else {
+        alertError(error)
+    }
+
+    loading.value = false
 }
 </script>
 
@@ -150,5 +175,5 @@ const save = async (row) => {
             </template>
         </TableServerSide>
     </section>
-    <FormAdd v-model:visible="drawer" :selected="selected" @save="save" />
+    <FormAdd v-model:visible="drawer" :selected="selected" @save="handleSave" />
 </template>
