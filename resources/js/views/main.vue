@@ -4,7 +4,7 @@ import Sidebar from '../components/Sidebar.vue'
 import Footer from '../components/Footer.vue'
 
 import { apiRequest } from '../lib/apiClient'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { alertError } from '../lib/alert'
 import { useUser } from '../store'
 import { useRouter } from 'vue-router'
@@ -35,7 +35,19 @@ const me = async () => {
     loading.value = false
 }
 
-onMounted(me)
+const bg = ref('')
+
+const loadBackground = async () => {
+    const { ok, data } = await apiRequest('configurations/background_image')
+    if (ok) {
+        bg.value = `/storage/${data.data.background_image}`
+    }
+}
+
+onMounted(async () => {
+    await me()
+    await loadBackground()
+})
 
 const progressBar = ref(null)
 
@@ -47,6 +59,14 @@ router.beforeEach((to, from, next) => {
 router.afterEach(() => {
     progressBar.value?.finish()
 })
+
+const backgroundStyle = computed(() => {
+    return bg.value
+        ? { backgroundImage: `url(${bg.value})` }
+        : {}
+})
+
+
 </script>
 
 <template>
@@ -59,7 +79,44 @@ router.afterEach(() => {
     <div v-else>
         <Navbar />
         <Sidebar />
-        <RouterView />
+        <div class="content-area" :style="backgroundStyle">
+            <div class="overlay"></div>
+
+            <div class="content-wrapper">
+                <RouterView />
+            </div>
+        </div>
         <Footer />
     </div>
 </template>
+
+<style scoped>
+.app-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content-area {
+    position: relative;
+    min-height: calc(100vh - 120px); /* tergantung tinggi navbar + footer */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 20px;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15); /* bisa kamu sesuaikan */
+    backdrop-filter: blur(2px);
+    z-index: 1;
+}
+
+.content-wrapper {
+    position: relative;
+    z-index: 2;
+}
+
+</style>

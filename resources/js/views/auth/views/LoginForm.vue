@@ -55,10 +55,9 @@ async function userLogin({ email, password }) {
         // store to pinia
         credential.setUser({
             accesstoken: responseBody.data.token,
-            role: responseBody.data.user.roles,
+            role: responseBody.data.user.role,
             permissions: responseBody.data.user.permissions,
-            email: responseBody.data.user.email,
-            employe: responseBody.data.user.employe,
+            user: responseBody.data.user,
         })
 
         loader.hide()

@@ -23,13 +23,11 @@ trait HasPermissions
 
     public function getAllPermissions()
     {
-        return $this->roles()
-            ->with('permissions')
-            ->get()
-            ->pluck('permissions')
-            ->flatten()
-            ->unique('id')
-            ->values();
+        if (!$this->role) {
+            return collect([]);
+        }
+
+        return $this->role->permissions->unique('id')->values();
     }
 
     public function getPermissionKeys()

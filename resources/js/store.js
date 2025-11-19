@@ -6,11 +6,9 @@ export const useUser = defineStore(
     () => {
         const user = ref({
             accesstoken: '',
-            name: '',
+            user: {},
             role: [],
             permissions: [],
-            email: '',
-            employe: null,
         })
 
         const menus = computed(() => {

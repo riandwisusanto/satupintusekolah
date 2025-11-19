@@ -17,39 +17,7 @@ class SyncPermission extends Command
     {
         $this->info('🔄 Syncing permissions...');
 
-        $labelMap = [
-            'configuration' => 'Konfigurasi',
-            'branch' => 'Cabang',
-            'employee' => 'Karyawan',
-            'customer' => 'Pelanggan',
-            'worker' => 'Kuli',
-            'vehicle' => 'Armada',
-            'user' => 'Pengguna',
-            'courier' => 'Kurir',
-            'type_of_fee' => 'Jenis_Biaya',
-            'master_price' => 'Master_Harga',
-            'loading_list' => 'Daftar_Muat',
-            'view' => 'Lihat',
-            'create' => 'Tambah',
-            'update' => 'Ubah',
-            'delete' => 'Hapus',
-            'qty' => 'Jumlah',
-            'dm' => 'Daftar_Muat',
-            'sj' => 'Surat_Jalan',
-            'in' => 'Masuk',
-            'document' => 'Dokumen',
-            'shipment' => 'Pengiriman',
-            'operational_fee' => 'Biaya_Operasional',
-            'delivery' => 'Penerimaan',
-            'receive' => 'Penerimaan',
-            'finance' => 'Keuangan',
-            'payment' => 'Pembayaran',
-            'billing' => 'Tagihan',
-            'warehouse' => 'Gudang',
-            'handover' => 'Penitipan',
-            'payroll' => 'Gaji',
-            'report' => 'Laporan'
-        ];
+        $labelMap = [];
 
         $permissionList = config('permission');
         $flatPermissions = is_array($permissionList) ? Arr::flatten($permissionList) : [];
@@ -87,11 +55,11 @@ class SyncPermission extends Command
         }
 
         // Assign semua permission ke superadmin
-        $superadmin = \App\Models\Role::where('name', 'superadmin')->first();
+        $superadmin = \App\Models\Role::where('name', 'admin')->first();
         if ($superadmin) {
             $allPermissions = Permission::pluck('id')->toArray();
             $superadmin->syncPermissions($allPermissions);
-            $this->info('⭐ All permissions assigned to superadmin');
+            $this->info('⭐ All permissions assigned to admin');
         }
 
         $this->info('✅ Permission sync completed!');

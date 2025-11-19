@@ -37,6 +37,9 @@ const routes = [
         },
     },
     ...AuthRoutes,
+    ...DeveloperRoutes,
+    ...ErrorRoutes,
+    routesMain,
 ]
 
 const router = createRouter({

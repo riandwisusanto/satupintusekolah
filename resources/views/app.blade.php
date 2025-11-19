@@ -4,9 +4,9 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Shipping Management System</title>
+        <title>Management Sekolah</title>
             @vite(['resources/css/app.css'])
-        <link rel="shortcut icon" href="{{ asset('assets/images/LogoUMKMSoft.jpg') }}" type="image/x-icon">
+        <link rel="shortcut icon" href="{{ asset('assets/images/logo-satupintu.png') }}" type="image/x-icon">
         
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
      

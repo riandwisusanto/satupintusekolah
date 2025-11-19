@@ -18,10 +18,10 @@ class Role extends Model
         return $this->belongsToMany(Permission::class, 'permission_roles', 'role_id', 'permission_id');
     }
 
-    public function users()
-    {
-        return $this->hasMany(User::class);
-    }
+    // public function users()
+    // {
+    //     return $this->hasMany(User::class);
+    // }
 
     public function syncPermissions(array $permissionIds)
     {

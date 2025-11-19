@@ -84,16 +84,16 @@ watch(
     <!-- Main Sidebar Container -->
     <aside
         class="main-sidebar sidebar-dark-primary elevation-4"
-        style="background: linear-gradient(to bottom, #006a4e, #009f6b)"
+        style="background: linear-gradient(to bottom, #4a90e2, #7ed6df);"
     >
         <!-- Brand Logo -->
         <a href="/" class="brand-link text-center">
             <img
-                src="/public/assets/images/LogoUsaha.jpg"
+                src="/public/assets/images/logo-satupintu.png"
                 alt="Logo"
                 class="brand-image elevation-3"
             />
-            <span class="brand-text font-weight-light text-white"><b>PT. Karunia Abadi</b></span>
+            <span class="brand-text font-weight-light text-white"><b>Satu Pintu Sekolah</b></span>
         </a>
 
         <!-- Sidebar -->
@@ -187,9 +187,8 @@ watch(
 }
 
 .nav-sidebar .nav-link.active {
-    background-color: #696969ae !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
     color: #fff !important;
-    /* font-weight: bold; */
 }
 
 .nav-sidebar .nav-link.active .nav-icon {
@@ -197,19 +196,20 @@ watch(
 }
 
 .nav-treeview .nav-link.active {
-    background-color: #84848472 !important;
+    background-color: rgba(255, 255, 255, 0.22) !important;
     font-weight: 600;
 }
 
 .sidebar .nav-sidebar .nav-link:hover {
-    background-color: #696969ae !important;
+    background-color: rgba(255, 255, 255, 0.12) !important;
     color: #ffffff !important;
 }
 
 .sidebar .nav-treeview .nav-link:hover {
-    background-color: #84848472 !important;
+    background-color: rgba(255, 255, 255, 0.18) !important;
     color: #ffffff !important;
 }
+
 
 .sidebar .nav-sidebar .nav-link,
 .sidebar .nav-treeview .nav-link {

@@ -3,14 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Traits\HasApiQueryConfig;
+use App\Traits\HasPermissions;
+use App\Traits\LogsModelChanges;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasPermissions, HasApiTokens, LogsModelChanges, HasApiQueryConfig;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +25,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'nip',
+        'phone',
+        'photo',
+        'role_id',
+        'active',
     ];
 
     /**
@@ -43,6 +52,27 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+        ];
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function permissions()
+    {
+        return $this->role->permissions();
+    }
+
+    public static function apiQueryConfig(): array
+    {
+        return [
+            'searchable' => [
+                'name',
+                'email',
+                'role.label',
+            ]
         ];
     }
 }

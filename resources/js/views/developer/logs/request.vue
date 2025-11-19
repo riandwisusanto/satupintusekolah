@@ -1,5 +1,5 @@
 <script setup>
-import StatusTag from '../../configuration/_components/StatusTag.vue'
+import StatusTag from '@/components/StatusTag.vue'
 import { h, ref } from 'vue'
 import Form from './form.vue'
 import { useGlobalComponent } from '@/lib/useGlobalComponent'
