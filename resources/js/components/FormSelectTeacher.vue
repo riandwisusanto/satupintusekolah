@@ -2,7 +2,7 @@
     <SelectServerSide
         v-model="selectedValue"
         :label="label"
-        :placeholder="placeholder || '-- Pilih Kelas --'"
+        :placeholder="placeholder || '-- Pilih Guru --'"
         :required="required"
         :disabled="disabled"
         :name="name"
@@ -25,7 +25,7 @@ const props = defineProps({
     },
     label: {
         type: String,
-        default: 'Pilih Kelas',
+        default: 'Pilih Guru',
     },
     placeholder: {
         type: String,
@@ -41,14 +41,14 @@ const props = defineProps({
     },
     name: {
         type: String,
-        default: 'class_id',
+        default: 'teacher_id',
     },
 })
 
 const emit = defineEmits(['update:modelValue', 'select'])
 
 const selectedValue = ref(props.modelValue)
-const endpoint = 'classrooms/options'
+const endpoint = 'users/teachers'
 
 watch(() => props.modelValue, (newValue) => {
     selectedValue.value = newValue

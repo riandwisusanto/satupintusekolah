@@ -4,18 +4,18 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Helpers\ApiQueryHelper;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Classroom\ClassroomRequest;
-use App\Models\Classroom;
+use App\Http\Requests\Schedule\ScheduleRequest;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ClassroomController extends Controller
+class ScheduleController extends Controller
 {
     public function index()
     {
         $datas = ApiQueryHelper::apply(
-            Classroom::query(),
-            Classroom::apiQueryConfig()
+            Schedule::query(),
+            Schedule::apiQueryConfig()
         );
         try {
             return $datas;
@@ -24,30 +24,30 @@ class ClassroomController extends Controller
         }
     }
 
-    public function store(ClassroomRequest $request)
+    public function store(ScheduleRequest $request)
     {
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            $classroom = Classroom::create($validated);
+            $schedule = Schedule::create($validated);
 
             DB::commit();
-            return apiResponse('Kelas berhasil dibuat', ['classroom' => $classroom]);
+            return apiResponse('Jadwal berhasil dibuat', ['schedule' => $schedule]);
         } catch (\Throwable $th) {
             DB::rollBack();
             return apiResponse($th->getMessage(), null, 500);
         }
     }
 
-    public function update(ClassroomRequest $request, $id)
+    public function update(ScheduleRequest $request, $id)
     {
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            $classroom = Classroom::find($id);
-            $classroom->update($validated);
+            $schedule = Schedule::find($id);
+            $schedule->update($validated);
             DB::commit();
-            return apiResponse('Kelas berhasil diupdate', ['classroom' => $classroom]);
+            return apiResponse('Jadwal berhasil diupdate', ['schedule' => $schedule]);
         } catch (\Throwable $th) {
             DB::rollBack();
             return apiResponse($th->getMessage(), null, 500);
@@ -58,23 +58,12 @@ class ClassroomController extends Controller
     {
         DB::beginTransaction();
         try {
-            $classroom = Classroom::find($id);
-            $classroom->delete();
+            $schedule = Schedule::find($id);
+            $schedule->delete();
             DB::commit();
-            return apiResponse('Kelas berhasil dihapus', ['classroom' => $classroom]);
+            return apiResponse('Jadwal berhasil dihapus', ['schedule' => $schedule]);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return apiResponse($th->getMessage(), null, 500);
-        }
-    }
-
-    public function getOptions()
-    {
-        try {
-            $classrooms = Classroom::where('active', true)->select('id', 'name')->get();
-
-            return $classrooms;
-        } catch (\Throwable $th) {
             return apiResponse($th->getMessage(), null, 500);
         }
     }

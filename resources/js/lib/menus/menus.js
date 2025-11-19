@@ -32,6 +32,20 @@ export const sidebarMenus = [
                 to: '/master-data/students',
                 permission: 'master_data.students.view',
             },
+            {
+                key: 'subjects',
+                label: 'Mata Pelajaran',
+                icon: 'fas fa-book',
+                to: '/master-data/subjects',
+                permission: 'master_data.subjects.view',
+            },
+            {
+                key: 'schedules',
+                label: 'Jadwal',
+                icon: 'fas fa-calendar-alt',
+                to: '/master-data/schedules',
+                permission: 'master_data.schedules.view',
+            },
         ],
     }
 ]

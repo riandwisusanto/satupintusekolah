@@ -4,18 +4,18 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Helpers\ApiQueryHelper;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Classroom\ClassroomRequest;
-use App\Models\Classroom;
+use App\Http\Requests\Subject\SubjectRequest;
+use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ClassroomController extends Controller
+class SubjectController extends Controller
 {
     public function index()
     {
         $datas = ApiQueryHelper::apply(
-            Classroom::query(),
-            Classroom::apiQueryConfig()
+            Subject::query(),
+            Subject::apiQueryConfig()
         );
         try {
             return $datas;
@@ -24,30 +24,30 @@ class ClassroomController extends Controller
         }
     }
 
-    public function store(ClassroomRequest $request)
+    public function store(SubjectRequest $request)
     {
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            $classroom = Classroom::create($validated);
+            $subject = Subject::create($validated);
 
             DB::commit();
-            return apiResponse('Kelas berhasil dibuat', ['classroom' => $classroom]);
+            return apiResponse('Mata pelajaran berhasil dibuat', ['subject' => $subject]);
         } catch (\Throwable $th) {
             DB::rollBack();
             return apiResponse($th->getMessage(), null, 500);
         }
     }
 
-    public function update(ClassroomRequest $request, $id)
+    public function update(SubjectRequest $request, $id)
     {
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            $classroom = Classroom::find($id);
-            $classroom->update($validated);
+            $subject = Subject::find($id);
+            $subject->update($validated);
             DB::commit();
-            return apiResponse('Kelas berhasil diupdate', ['classroom' => $classroom]);
+            return apiResponse('Mata pelajaran berhasil diupdate', ['subject' => $subject]);
         } catch (\Throwable $th) {
             DB::rollBack();
             return apiResponse($th->getMessage(), null, 500);
@@ -58,10 +58,10 @@ class ClassroomController extends Controller
     {
         DB::beginTransaction();
         try {
-            $classroom = Classroom::find($id);
-            $classroom->delete();
+            $subject = Subject::find($id);
+            $subject->delete();
             DB::commit();
-            return apiResponse('Kelas berhasil dihapus', ['classroom' => $classroom]);
+            return apiResponse('Mata pelajaran berhasil dihapus', ['subject' => $subject]);
         } catch (\Throwable $th) {
             DB::rollBack();
             return apiResponse($th->getMessage(), null, 500);
@@ -71,9 +71,9 @@ class ClassroomController extends Controller
     public function getOptions()
     {
         try {
-            $classrooms = Classroom::where('active', true)->select('id', 'name')->get();
+            $subjects = Subject::where('active', true)->select('id', 'name')->get();
 
-            return $classrooms;
+            return $subjects;
         } catch (\Throwable $th) {
             return apiResponse($th->getMessage(), null, 500);
         }

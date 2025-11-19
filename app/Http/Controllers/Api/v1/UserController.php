@@ -107,4 +107,15 @@ class UserController extends Controller
             return apiResponse($th->getMessage(), null, 500);
         }
     }
+
+    public function getTeachers()
+    {
+        try {
+            $teachers = User::where('role_id', 2)->select('id', 'name')->get();
+
+            return $teachers;
+        } catch (\Throwable $th) {
+            return apiResponse($th->getMessage(), null, 500);
+        }
+    }
 }

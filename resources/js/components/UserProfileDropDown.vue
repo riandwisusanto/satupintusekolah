@@ -60,7 +60,7 @@ const user = computed(() => credential.user)
 
 // FOTO PROFIL
 const photo = computed(() => {
-    console.log();
+    // console.log();
     
     const p = `/storage/${credential.user.user?.photo}`
     return p ? p : '/assets/images/avatar5.png'

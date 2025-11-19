@@ -1,32 +1,11 @@
 <template>
     <FormDrawer
         v-model="visible"
-        :title="selected ? 'Ubah Pengguna' : 'Tambah Pengguna'"
+        :title="selected ? 'Ubah Mata Pelajaran' : 'Tambah Mata Pelajaran'"
         width="500"
         @save="saveItem"
     >
-        <FormInput v-model="form.name" label="Nama" required />
-        <FormInput type="email" v-model="form.email" label="Email" required />
-        <FormInputPhone v-model="form.phone" label="No. HP" />
-        <FormInputNIP v-model="form.nip" label="NIP" />
-        <FormSelectRole v-model="form.role_id" label="Role" required />
-        <FormInput
-            v-model="form.password"
-            :label="!form.id ? 'Password' : 'Password Baru'"
-            type="password"
-            :required="!form.id"
-        />
-        <small v-if="form.id"
-            >* Biarkan kosong jika tidak ubah password</small
-        >
-
-        <FileUpload 
-            v-model="form.photo" 
-            label="Foto" 
-            accept="jpeg,jpg,png"
-            :required="!form.id"
-            class="mt-3"
-        />
+        <FormInput v-model="form.name" label="Nama Mata Pelajaran" required />
         <FormToggleStatus v-model="form.active" />
     </FormDrawer>
 </template>
@@ -61,21 +40,15 @@ function close() {
 const form = reactive({
     id: null,
     name: '',
-    phone: '',
-    nip: '',
-    email: '',
-    photo: null,
     active: true,
 })
 
 function fillForm(src) {
     if (!src) return
-    // console.log(src);
 
     Object.assign(form, {
         ...src,
         active: src.active == 1 ? true : false,
-        photo: src.photo || null,
     })
 }
 
@@ -94,10 +67,6 @@ function resetForm() {
     Object.assign(form, {
         id: null,
         name: '',
-        phone: '',
-        nip: '',
-        email: '',
-        photo: null,
         active: true,
     })
 }

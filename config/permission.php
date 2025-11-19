@@ -20,4 +20,8 @@ return [
     'master_data.subjects.create',
     'master_data.subjects.update',
     'master_data.subjects.delete',
+    'master_data.schedules.view',
+    'master_data.schedules.create',
+    'master_data.schedules.update',
+    'master_data.schedules.delete',
 ];
