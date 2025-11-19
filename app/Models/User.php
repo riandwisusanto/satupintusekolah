@@ -59,12 +59,12 @@ class User extends Authenticatable
 
     public function getEditableAttribute(): bool
     {
-        return $this->id !== auth()->user()->id;
+        return true;
     }
 
     public function getDeleteableAttribute(): bool
     {
-        return $this->id !== auth()->user()->id;
+        return true;
     }
 
     public function role()

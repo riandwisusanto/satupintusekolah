@@ -112,6 +112,16 @@ const save = async (row) => {
             :loading="loading"
             @open-drawer="addItem"
         >
+            <template #cell-photo="{ row }">
+                <img 
+                    v-if="row.photo"
+                    :src="`/storage/${row.photo}`" 
+                    alt="User Photo" 
+                    class="rounded-circle"
+                    style="width: 40px; height: 40px; object-fit: cover;"
+                />
+                <span v-else class="text-muted">No Photo</span>
+            </template>
             <template #cell-active="{ row }">
                 <StatusTag :status="row.active" :map="statusMap" />
             </template>

@@ -8,6 +8,7 @@ use App\Http\Requests\User\UserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -29,6 +30,12 @@ class UserController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
+            // Handle photo upload
+            if (isset($validated['photo']) && $validated['photo'] instanceof \Illuminate\Http\UploadedFile) {
+                $photoPath = $validated['photo']->store('photos', 'public');
+                $validated['photo'] = $photoPath;
+            }
+
             $user = User::create($validated);
 
             DB::commit();
@@ -45,6 +52,33 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $user = User::find($id);
+
+            // Handle photo upload
+            if (isset($validated['photo'])) {
+                // Delete old photo if exists
+                if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                    Storage::disk('public')->delete($user->photo);
+                }
+
+                // Upload new photo if it's a file
+                if ($validated['photo'] instanceof \Illuminate\Http\UploadedFile) {
+                    $photoPath = $validated['photo']->store('photos', 'public');
+                    $validated['photo'] = $photoPath;
+                }
+                // If photo is null or empty string, remove it
+                elseif (empty($validated['photo'])) {
+                    $validated['photo'] = null;
+                    // Delete old photo
+                    if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                        Storage::disk('public')->delete($user->photo);
+                    }
+                }
+                // If photo is string (existing path), keep it
+                else {
+                    $validated['photo'] = $user->photo;
+                }
+            }
+
             $user->update($validated);
             DB::commit();
             return apiResponse('Pengguna berhasil diupdate', ['user' => $user]);
@@ -59,6 +93,12 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $user = User::find($id);
+
+            // Delete photo if exists
+            if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                Storage::disk('public')->delete($user->photo);
+            }
+
             $user->delete();
             DB::commit();
             return apiResponse('Pengguna berhasil dihapus', ['user' => $user]);

@@ -23,31 +23,33 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $isUpdate = $this->method() == 'PUT';
+
         $rules = [
-            'name'      => 'required|string|max:255' . $this->route('id'),
-            'email'     => 'required|string|email:users,email,' . $this->route('id'),
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|string|email|unique:users,email,' . $this->route('id'),
             'nip'       => 'nullable|string|max:255|unique:users,nip,' . $this->route('id'),
             'phone'     => 'nullable|string|max:255|unique:users,phone,' . $this->route('id'),
             'photo'     => [
-                'nullable',
+                $isUpdate ? 'nullable' : 'required',
                 function ($attribute, $value, $fail) {
                     if ($value instanceof UploadedFile) {
                         $allowed = ['image/jpeg', 'image/png', 'image/jpg'];
+                        $maxSize = 2 * 1024 * 1024; // 2MB
                         if (! in_array($value->getMimeType(), $allowed)) {
-                            $fail('File harus jpeg, png, jpg,');
+                            $fail('File harus berformat jpeg, png, atau jpg');
+                        }
+                        if ($value->getSize() > $maxSize) {
+                            $fail('Ukuran file maksimal 2MB');
                         }
                     } elseif (!is_string($value) && !is_null($value)) {
-                        $fail('Field tidak valid.');
+                        $fail('Field tidak valid');
                     }
                 }
             ],
-            'password'  => 'nullable|string|min:6',
+            'password'  => $isUpdate ? 'nullable|string|min:6' : 'required|string|min:6',
             'role_id'   => 'required|exists:roles,id',
         ];
-
-        if ($this->method() == 'PUT') {
-            $rules['password'] = 'nullable|string|min:6';
-        }
 
         return $rules;
     }
