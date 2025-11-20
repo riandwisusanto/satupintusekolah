@@ -57,6 +57,12 @@ class User extends Authenticatable
         ];
     }
 
+    // get photo
+    public function getPhotoAttribute($value)
+    {
+        return $value ? asset('storage/' . $value) : null;
+    }
+
     public function getEditableAttribute(): bool
     {
         return true;

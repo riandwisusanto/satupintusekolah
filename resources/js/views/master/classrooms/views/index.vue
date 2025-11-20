@@ -20,6 +20,8 @@ const statusMap = {
 const columns = [
     { field: 'id', display: '#ID' },
     { field: 'name', display: 'Nama Kelas' },
+    { field: 'teacher.name', display: 'Guru' },
+    { field: 'academic_year.name', display: 'Tahun Ajaran' },
     { field: 'active', display: 'Status' },
     { field: 'action', display: 'Action', sortable: false },
 ]
@@ -106,6 +108,9 @@ const save = async (row) => {
             :per_page="10"
             endpoint="classrooms"
             :loading="loading"
+            :extra="{
+                with: 'teacher,academicYear',
+            }"
             @open-drawer="addItem"
         >
             <template #cell-active="{ row }">

@@ -60,10 +60,8 @@ const user = computed(() => credential.user)
 
 // FOTO PROFIL
 const photo = computed(() => {
-    // console.log();
-    
-    const p = `/storage/${credential.user.user?.photo}`
-    return p ? p : '/assets/images/avatar5.png'
+    const p = `${credential.user.user?.photo}`
+    return credential.user.user?.photo ? p : '/assets/images/avatar5.png'
 })
 
 // LOGOUT HANDLER

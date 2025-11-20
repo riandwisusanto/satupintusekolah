@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Helpers\ApiQueryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Classroom\ClassroomRequest;
+use App\Models\AcademicYear;
 use App\Models\Classroom;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +30,10 @@ class ClassroomController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            $classroom = Classroom::create($validated);
+            $classroom = Classroom::create([
+                ...$validated,
+                'academic_year_id' => AcademicYear::where('active', true)->first()->id
+            ]);
 
             DB::commit();
             return apiResponse('Kelas berhasil dibuat', ['classroom' => $classroom]);

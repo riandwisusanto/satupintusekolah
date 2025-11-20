@@ -6,6 +6,7 @@
         @save="saveItem"
     >
         <FormInput v-model="form.name" label="Nama Kelas" required />
+        <FormSelectTeacher v-model="form.teacher_id" />
         <FormToggleStatus v-model="form.active" />
     </FormDrawer>
 </template>
@@ -40,6 +41,7 @@ function close() {
 const form = reactive({
     id: null,
     name: '',
+    teacher_id: null,
     active: true,
 })
 
@@ -67,6 +69,7 @@ function resetForm() {
     Object.assign(form, {
         id: null,
         name: '',
+        teacher_id: null,
         active: true,
     })
 }

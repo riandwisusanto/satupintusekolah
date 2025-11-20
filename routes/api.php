@@ -20,6 +20,7 @@ Route::prefix('v1')
             Route::patch('configurations/{name}', [ConfigurationSettingController::class, 'update']);
 
             Route::get('permissions/options', [App\Http\Controllers\Api\v1\RoleController::class, 'getPermissions']);
+            Route::get('users/teachers', [App\Http\Controllers\Api\v1\UserController::class, 'getTeachers']);
             Route::apiResource('users', \App\Http\Controllers\Api\v1\UserController::class);
             Route::apiResource('roles', \App\Http\Controllers\Api\v1\RoleController::class);
             Route::apiResource('classrooms', \App\Http\Controllers\Api\v1\ClassroomController::class);

@@ -140,7 +140,7 @@ const save = async (row) => {
             <template #cell-photo="{ row }">
                 <img 
                     v-if="row.photo"
-                    :src="`/storage/${row.photo}`" 
+                    :src="`${row.photo}`" 
                     alt="User Photo" 
                     class="rounded-circle"
                     style="width: 40px; height: 40px; object-fit: cover;"
