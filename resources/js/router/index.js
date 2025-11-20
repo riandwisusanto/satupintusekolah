@@ -10,11 +10,15 @@ import { ErrorRoutes } from '../views/errors/routes.js'
 import { AuthRoutes } from '../views/auth/routes.js'
 import { DeveloperRoutes } from '../views/developer/routes.js'
 import { MasterDataRoutes } from '../views/master/routes.js'
+import TeacherJournalRoutes from '../views/teacher-journals/routes.js'
+import MySchedulesRoutes from '../views/my-schedules/routes.js'
 
 // Route children dari Main Layout
 const MainChildren = [
     ...DasboardRoutes,
     ...MasterDataRoutes,
+    ...TeacherJournalRoutes,
+    ...MySchedulesRoutes
 ]
 
 const routesMain = {

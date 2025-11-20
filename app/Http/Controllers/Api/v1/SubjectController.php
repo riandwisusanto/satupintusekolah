@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Helpers\ApiQueryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Subject\SubjectRequest;
+use App\Models\Schedule;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -72,6 +73,17 @@ class SubjectController extends Controller
     {
         try {
             $subjects = Subject::where('active', true)->select('id', 'name')->get();
+
+            return $subjects;
+        } catch (\Throwable $th) {
+            return apiResponse($th->getMessage(), null, 500);
+        }
+    }
+
+    public function getOptionBySchedule($id)
+    {
+        try {
+            $subjects = Schedule::find($id)->subject->select('id', 'name')->get();
 
             return $subjects;
         } catch (\Throwable $th) {

@@ -8,15 +8,17 @@ use App\Traits\LogsModelChanges;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Classroom extends Model
+class TeacherJournal extends Model
 {
     use HasFactory, HasPermissions, LogsModelChanges, HasApiQueryConfig;
 
-    protected $table = 'classes';
-
     protected $fillable = [
-        'name',
         'teacher_id',
+        'class_id',
+        'date',
+        'theme',
+        'activity',
+        'notes',
         'active',
     ];
 
@@ -24,6 +26,8 @@ class Classroom extends Model
 
     protected $casts = [
         'teacher_id' => 'integer',
+        'class_id' => 'integer',
+        'date' => 'date',
         'active' => 'boolean',
     ];
 
@@ -34,12 +38,7 @@ class Classroom extends Model
 
     public function getDeleteableAttribute(): bool
     {
-        return $this->students()->count() === 0;
-    }
-
-    public function students()
-    {
-        return $this->hasMany(Student::class, 'class_id');
+        return true;
     }
 
     public function teacher()
@@ -47,12 +46,28 @@ class Classroom extends Model
         return $this->belongsTo(User::class, 'teacher_id');
     }
 
+    public function subjects()
+    {
+        return $this->hasMany(JournalSubject::class, 'teacher_journal_id');
+    }
+
+
+    public function classroom()
+    {
+        return $this->belongsTo(Classroom::class, 'class_id');
+    }
+
     public static function apiQueryConfig(): array
     {
         return [
             'searchable' => [
-                'name',
-            ]
+                'theme',
+                'activity',
+                'date',
+                'teacher.name',
+                'classroom.name',
+            ],
+            'with' => ['teacher', 'subjects', 'classroom']
         ];
     }
 }

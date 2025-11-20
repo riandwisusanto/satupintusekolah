@@ -47,5 +47,19 @@ export const sidebarMenus = [
                 permission: 'master_data.schedules.view',
             },
         ],
+    },
+    {
+        key: 'my-schedules',
+        label: 'Jadwal Mengajar',
+        icon: 'fas fa-calendar-alt',
+        to: '/my-schedules',
+        permission: 'schedules.view',
+    },
+    {
+        key: 'teacher-journals',
+        label: 'Jurnal Guru',
+        icon: 'fas fa-journal-whills',
+        to: '/teacher-journals',
+        permission: 'teacher_journals.view',
     }
 ]

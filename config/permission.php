@@ -24,4 +24,11 @@ return [
     'master_data.schedules.create',
     'master_data.schedules.update',
     'master_data.schedules.delete',
+
+    'teacher_journals.view',
+    'teacher_journals.create',
+    'teacher_journals.update',
+    'teacher_journals.delete',
+
+    'schedules.view',
 ];

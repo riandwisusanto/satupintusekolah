@@ -28,8 +28,6 @@ class Schedule extends Model
         'teacher_id' => 'integer',
         'subject_id' => 'integer',
         'class_id' => 'integer',
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
     ];
 
     public function getEditableAttribute(): bool
