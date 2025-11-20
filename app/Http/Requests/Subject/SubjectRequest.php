@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Subject;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SubjectRequest extends FormRequest
 {
@@ -22,7 +23,12 @@ class SubjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255|unique:subjects,name,' . $this->route('id'),
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('subjects', 'name')->ignore($this->route('id') ?? $this->route('subject')),
+            ],
             'active' => 'required|boolean',
         ];
     }

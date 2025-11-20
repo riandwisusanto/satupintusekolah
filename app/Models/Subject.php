@@ -37,13 +37,4 @@ class Subject extends Model
     {
         return $this->hasMany(Schedule::class);
     }
-
-    public static function apiQueryConfig(): array
-    {
-        return [
-            'searchable' => [
-                'name',
-            ]
-        ];
-    }
 }

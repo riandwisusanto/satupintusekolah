@@ -15,7 +15,11 @@ class SubjectController extends Controller
     public function index()
     {
         $datas = ApiQueryHelper::apply(
-            Subject::query(),
+            Subject::when(!auth()->user()->isAdmin(), function ($query) {
+                $query->whereHas('schedules', function ($query) {
+                    $query->where('teacher_id', auth()->user()->id);
+                });
+            }),
             Subject::apiQueryConfig()
         );
         try {

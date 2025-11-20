@@ -54,18 +54,4 @@ class Schedule extends Model
     {
         return $this->belongsTo(Classroom::class, 'class_id');
     }
-
-    public static function apiQueryConfig(): array
-    {
-        return [
-            'searchable' => [
-                'day',
-                'semester',
-                'teacher.name',
-                'subject.name',
-                'classroom.name',
-            ],
-            'with' => ['teacher', 'subject', 'classroom']
-        ];
-    }
 }
