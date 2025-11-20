@@ -27,8 +27,6 @@ class TeacherAttendance extends Model
     protected $casts = [
         'teacher_id' => 'integer',
         'date' => 'date',
-        'time_in' => 'datetime',
-        'time_out' => 'datetime',
         'photo_in' => 'string',
         'photo_out' => 'string',
         'status' => 'string',

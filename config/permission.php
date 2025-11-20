@@ -29,6 +29,9 @@ return [
     'master_data.schedules.update',
     'master_data.schedules.delete',
 
+    'attendance.teacher.view',
+    'attendance.teacher.history',
+
     'teacher_journals.view',
     'teacher_journals.create',
     'teacher_journals.update',

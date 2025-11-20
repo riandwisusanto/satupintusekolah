@@ -56,6 +56,27 @@ export const sidebarMenus = [
         ],
     },
     {
+        key: 'attendance',
+        label: 'Absensi Guru',
+        icon: 'fas fa-user-clock',
+        children: [
+            {
+                key: 'attendance-teacher',
+                label: 'Absensi',
+                icon: 'fas fa-clock',
+                to: '/attendance/teacher',
+                permission: 'attendance.teacher.view',
+            },
+            {
+                key: 'attendance-history',
+                label: 'History',
+                icon: 'fas fa-history',
+                to: '/attendance/teacher/history',
+                permission: 'attendance.teacher.history',
+            }
+        ]
+    },
+    {
         key: 'my-schedules',
         label: 'Jadwal Mengajar',
         icon: 'fas fa-calendar-alt',
