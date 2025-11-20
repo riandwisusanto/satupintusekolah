@@ -17,6 +17,7 @@ class Classroom extends Model
     protected $fillable = [
         'name',
         'teacher_id',
+        'academic_year_id',
         'active',
     ];
 
@@ -47,12 +48,8 @@ class Classroom extends Model
         return $this->belongsTo(User::class, 'teacher_id');
     }
 
-    public static function apiQueryConfig(): array
+    public function academicYear()
     {
-        return [
-            'searchable' => [
-                'name',
-            ]
-        ];
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
     }
 }

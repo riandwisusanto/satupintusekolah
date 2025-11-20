@@ -23,7 +23,14 @@ class ClassroomRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'      => 'required|string|max:255|unique:classes,name,' . $this->route('id'),
+            'name'      => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('classes', 'name')->ignore($this->route('id') ?? $this->route('classroom')),
+            ],
+            'teacher_id' => 'required|exists:users,id',
+            'academic_year_id' => 'required|exists:academic_years,id',
             'active'    => 'required|boolean',
         ];
     }
