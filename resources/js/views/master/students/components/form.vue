@@ -11,8 +11,8 @@
             <label>Jenis Kelamin <span class="text-danger">*</span></label>
             <select v-model="form.gender" class="form-control" required>
                 <option value="">Pilih Jenis Kelamin</option>
-                <option value="L">Laki-laki</option>
-                <option value="P">Perempuan</option>
+                <option value="laki-laki">Laki-laki</option>
+                <option value="perempuan">Perempuan</option>
             </select>
         </div>
         <FormSelectClassroom v-model="form.class_id" label="Kelas" required />
@@ -63,7 +63,6 @@ function fillForm(src) {
     Object.assign(form, {
         ...src,
         active: src.active == 1 ? true : false,
-        class_id: src.class_id?.toString() || '',
     })
 }
 

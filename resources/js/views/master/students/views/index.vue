@@ -18,8 +18,8 @@ const statusMap = {
 }
 
 const genderMap = {
-    'L': { text: 'Laki-laki', class: 'badge-primary' },
-    'P': { text: 'Perempuan', class: 'badge-info' },
+    'laki-laki': { text: 'Laki - laki', class: 'badge-primary' },
+    'perempuan': { text: 'Perempuan', class: 'badge-info' },
 }
 
 const columns = [
@@ -114,6 +114,9 @@ const save = async (row) => {
             :per_page="10"
             endpoint="students"
             :loading="loading"
+            :extra="{
+                with: 'classroom',
+            }"
             @open-drawer="addItem"
         >
             <template #cell-gender="{ row }">

@@ -19,7 +19,6 @@ import { apiRequest } from '../lib/apiClient'
 // Props
 const props = defineProps({
     modelValue: [String, Number],
-    proviceId: [String, Number],
     name: {
         type: String,
         default: 'teacher_id',
@@ -46,15 +45,6 @@ const model = computed({
 
 // Customer options
 const rankOptions = ref([])
-
-watch(
-    () => props.proviceId,
-    async (val) => {
-        if (val) {
-            fetchData()
-        }
-    }
-)
 
 onMounted(async () => {
     fetchData()

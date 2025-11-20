@@ -23,6 +23,7 @@ Route::prefix('v1')
             Route::get('users/teachers', [App\Http\Controllers\Api\v1\UserController::class, 'getTeachers']);
             Route::apiResource('users', \App\Http\Controllers\Api\v1\UserController::class);
             Route::apiResource('roles', \App\Http\Controllers\Api\v1\RoleController::class);
+            Route::get('classrooms/options', [\App\Http\Controllers\Api\v1\ClassroomController::class, 'getOptions']);
             Route::apiResource('classrooms', \App\Http\Controllers\Api\v1\ClassroomController::class);
             Route::apiResource('students', \App\Http\Controllers\Api\v1\StudentController::class);
             Route::apiResource('subjects', \App\Http\Controllers\Api\v1\SubjectController::class);

@@ -76,8 +76,7 @@ class ClassroomController extends Controller
     {
         try {
             $classrooms = Classroom::where('active', true)->select('id', 'name')->get();
-
-            return $classrooms;
+            return apiResponse('Data kelas berhasil didapatkan', ['classrooms' => $classrooms]);
         } catch (\Throwable $th) {
             return apiResponse($th->getMessage(), null, 500);
         }

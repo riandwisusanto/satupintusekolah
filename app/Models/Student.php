@@ -42,15 +42,4 @@ class Student extends Model
     {
         return $this->belongsTo(Classroom::class, 'class_id');
     }
-
-    public static function apiQueryConfig(): array
-    {
-        return [
-            'searchable' => [
-                'name',
-                'nis',
-                'classroom.name',
-            ]
-        ];
-    }
 }
