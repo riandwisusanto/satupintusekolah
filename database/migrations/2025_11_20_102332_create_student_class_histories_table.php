@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('students', function (Blueprint $table) {
+        Schema::create('student_class_histories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('class_id')->constrained('classes')->onDelete('restrict');
-            $table->string('name');
-            $table->enum('gender', ['laki-laki', 'perempuan']);
-            $table->string('nis', 20);
-            $table->string('phone', 100);
-            $table->boolean('active')->default(true);
+            $table->foreignId('student_id')->constrained('students')->onDelete('restrict');
+            $table->foreignId('academic_year_id')->constrained('academic_years')->onDelete('restrict');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('students');
+        Schema::dropIfExists('student_class_histories');
     }
 };

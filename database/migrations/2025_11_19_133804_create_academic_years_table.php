@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('journal_subjects', function (Blueprint $table) {
+        Schema::create('academic_years', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('teacher_journal_id')->constrained()->onDelete('cascade');
-            $table->foreignId('subject_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->enum('semester', [1, 2]);
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->boolean('active')->default(true);
             $table->timestamps();
-
-            $table->index(['teacher_journal_id', 'subject_id']);
         });
     }
 
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('journal_subjects');
+        Schema::dropIfExists('academic_years');
     }
 };

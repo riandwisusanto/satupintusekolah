@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('classes', function (Blueprint $table) {
+        Schema::create('journal_subjects', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->foreignId('teacher_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('academic_year_id')->constrained('academic_years')->onDelete('restrict');
-            $table->boolean('active')->default(true);
+            $table->foreignId('journal_id')->constrained('journals')->onDelete('cascade');
+            $table->foreignId('subject_id')->constrained('subjects')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('classes');
+        Schema::dropIfExists('journal_subjects');
     }
 };

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('teacher_id');
             $table->unsignedBigInteger('subject_id');
             $table->unsignedBigInteger('class_id');
+            $table->foreignId('academic_year_id')->constrained('academic_years')->onDelete('restrict');
             $table->enum('day', ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']);
             $table->time('start_time');
             $table->time('end_time');
