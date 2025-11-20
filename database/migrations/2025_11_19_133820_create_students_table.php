@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->enum('gender', ['laki-laki', 'perempuan']);
             $table->string('nis', 20);
-            $table->string('phone', 100);
+            $table->string('phone', 100)->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();
         });

@@ -29,7 +29,7 @@ class ClassroomRequest extends FormRequest
                 'max:255',
                 Rule::unique('classes', 'name')->ignore($this->route('id') ?? $this->route('classroom')),
             ],
-            'teacher_id' => 'required|exists:users,id',
+            'teacher_id' => 'exists:users,id',
             'academic_year_id' => 'required|exists:academic_years,id',
             'active'    => 'required|boolean',
         ];

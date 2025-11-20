@@ -23,10 +23,19 @@ class StudentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nis'       => 'required|string|max:255|unique:students,nis,' . $this->route('id'),
+            'nis'       => [
+                'required',
+                'string',
+                Rule::unique('students', 'nis')->ignore($this->route('id') ?? $this->route('student')),
+            ],
             'name'      => 'required|string|max:255',
-            'gender'    => 'required|in:L,P',
+            'gender'    => 'required',
             'class_id'  => 'required|exists:classes,id',
+            'phone'     => [
+                'nullable',
+                'string',
+                Rule::unique('students', 'phone')->ignore($this->route('id') ?? $this->route('student')),
+            ],
             'active'    => 'required|boolean',
         ];
     }

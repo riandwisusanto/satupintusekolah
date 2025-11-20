@@ -14,7 +14,7 @@ class StudentController extends Controller
     public function index()
     {
         $datas = ApiQueryHelper::apply(
-            Student::with('classroom'),
+            Student::query(),
             Student::apiQueryConfig()
         );
         try {
