@@ -38,6 +38,26 @@ class Subject extends Model
         return $this->hasMany(Schedule::class);
     }
 
+    public function journals()
+    {
+        return $this->belongsToMany(Journal::class, 'journal_subjects');
+    }
+
+    public function journalSubjects()
+    {
+        return $this->hasMany(JournalSubject::class);
+    }
+
+    public function studentAttendances()
+    {
+        return $this->belongsToMany(StudentAttendance::class, 'student_attendance_subjects');
+    }
+
+    public function studentAttendanceSubjects()
+    {
+        return $this->hasMany(StudentAttendanceSubject::class);
+    }
+
     public static function apiQueryConfig(): array
     {
         return [

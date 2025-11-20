@@ -17,6 +17,7 @@ class Classroom extends Model
     protected $fillable = [
         'name',
         'teacher_id',
+        'academic_year_id',
         'active',
     ];
 
@@ -24,6 +25,7 @@ class Classroom extends Model
 
     protected $casts = [
         'teacher_id' => 'integer',
+        'academic_year_id' => 'integer',
         'active' => 'boolean',
     ];
 
@@ -45,6 +47,26 @@ class Classroom extends Model
     public function teacher()
     {
         return $this->belongsTo(User::class, 'teacher_id');
+    }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'class_id');
+    }
+
+    public function journals()
+    {
+        return $this->hasMany(Journal::class, 'class_id');
+    }
+
+    public function studentClassHistories()
+    {
+        return $this->hasMany(StudentClassHistory::class, 'class_id');
     }
 
     public static function apiQueryConfig(): array

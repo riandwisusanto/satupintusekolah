@@ -8,27 +8,26 @@ use App\Traits\LogsModelChanges;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TeacherJournal extends Model
+class StudentClassHistory extends Model
 {
     use HasFactory, HasPermissions, LogsModelChanges, HasApiQueryConfig;
 
     protected $fillable = [
-        'teacher_id',
         'class_id',
-        'date',
-        'theme',
-        'activity',
-        'notes',
-        'active',
+        'student_id',
+        'academic_year_id',
+        'start_date',
+        'end_date',
     ];
 
     protected $appends = ['editable', 'deleteable'];
 
     protected $casts = [
-        'teacher_id' => 'integer',
         'class_id' => 'integer',
-        'date' => 'date',
-        'active' => 'boolean',
+        'student_id' => 'integer',
+        'academic_year_id' => 'integer',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     public function getEditableAttribute(): bool
@@ -41,33 +40,30 @@ class TeacherJournal extends Model
         return true;
     }
 
-    public function teacher()
-    {
-        return $this->belongsTo(User::class, 'teacher_id');
-    }
-
-    public function subjects()
-    {
-        return $this->hasMany(JournalSubject::class, 'teacher_journal_id');
-    }
-
-
-    public function classroom()
+    public function class()
     {
         return $this->belongsTo(Classroom::class, 'class_id');
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'student_id');
+    }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
     }
 
     public static function apiQueryConfig(): array
     {
         return [
             'searchable' => [
-                'theme',
-                'activity',
-                'date',
-                'teacher.name',
-                'classroom.name',
+                'student.name',
+                'class.name',
+                'academicYear.name',
             ],
-            'with' => ['teacher', 'subjects', 'classroom']
+            'with' => ['class', 'student', 'academicYear']
         ];
     }
 }

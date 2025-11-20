@@ -3,15 +3,23 @@
 namespace App\Models;
 
 use App\Traits\HasApiQueryConfig;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
-    use HasApiQueryConfig;
-    protected $guarded = [];
+    use HasApiQueryConfig, HasFactory;
 
-    protected $fillable = ['name', 'label'];
+    protected $fillable = [
+        'name',
+        'active',
+    ];
+
     protected $hidden = ['pivot'];
+
+    protected $casts = [
+        'active' => 'boolean',
+    ];
 
     public function permissions()
     {
@@ -26,5 +34,14 @@ class Role extends Model
     public function syncPermissions(array $permissionIds)
     {
         $this->permissions()->sync($permissionIds);
+    }
+
+    public static function apiQueryConfig(): array
+    {
+        return [
+            'searchable' => [
+                'name',
+            ]
+        ];
     }
 }

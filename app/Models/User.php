@@ -54,6 +54,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'active' => 'boolean',
         ];
     }
 
@@ -75,6 +76,31 @@ class User extends Authenticatable
     public function permissions()
     {
         return $this->role->permissions();
+    }
+
+    public function classes()
+    {
+        return $this->hasMany(Classroom::class, 'teacher_id');
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class, 'teacher_id');
+    }
+
+    public function journals()
+    {
+        return $this->hasMany(Journal::class, 'teacher_id');
+    }
+
+    public function studentAttendances()
+    {
+        return $this->hasMany(StudentAttendance::class, 'teacher_id');
+    }
+
+    public function teacherAttendances()
+    {
+        return $this->hasMany(TeacherAttendance::class, 'teacher_id');
     }
 
     public static function apiQueryConfig(): array

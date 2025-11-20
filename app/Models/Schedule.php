@@ -14,20 +14,25 @@ class Schedule extends Model
 
     protected $fillable = [
         'teacher_id',
-        'subject_id',
         'class_id',
+        'subject_id',
         'day',
         'start_time',
         'end_time',
-        'semester',
+        'academic_year_id',
+        'active',
     ];
 
     protected $appends = ['editable', 'deleteable'];
 
     protected $casts = [
         'teacher_id' => 'integer',
-        'subject_id' => 'integer',
         'class_id' => 'integer',
+        'subject_id' => 'integer',
+        'academic_year_id' => 'integer',
+        'active' => 'boolean',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
     ];
 
     public function getEditableAttribute(): bool
@@ -50,9 +55,19 @@ class Schedule extends Model
         return $this->belongsTo(Subject::class, 'subject_id');
     }
 
+    public function class()
+    {
+        return $this->belongsTo(Classroom::class, 'class_id');
+    }
+
     public function classroom()
     {
         return $this->belongsTo(Classroom::class, 'class_id');
+    }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
     }
 
     public static function apiQueryConfig(): array
@@ -60,12 +75,11 @@ class Schedule extends Model
         return [
             'searchable' => [
                 'day',
-                'semester',
                 'teacher.name',
                 'subject.name',
                 'classroom.name',
             ],
-            'with' => ['teacher', 'subject', 'classroom']
+            'with' => ['teacher', 'subject', 'classroom', 'academicYear']
         ];
     }
 }

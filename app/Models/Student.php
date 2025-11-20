@@ -13,10 +13,11 @@ class Student extends Model
     use HasFactory, HasPermissions, LogsModelChanges, HasApiQueryConfig;
 
     protected $fillable = [
-        'nis',
+        'class_id',
         'name',
         'gender',
-        'class_id',
+        'nis',
+        'phone',
         'active',
     ];
 
@@ -37,9 +38,24 @@ class Student extends Model
         return true;
     }
 
+    public function class()
+    {
+        return $this->belongsTo(Classroom::class, 'class_id');
+    }
+
     public function classroom()
     {
         return $this->belongsTo(Classroom::class, 'class_id');
+    }
+
+    public function studentClassHistories()
+    {
+        return $this->hasMany(StudentClassHistory::class, 'student_id');
+    }
+
+    public function studentAttendanceDetails()
+    {
+        return $this->hasMany(StudentAttendanceDetail::class, 'student_id');
     }
 
     public static function apiQueryConfig(): array

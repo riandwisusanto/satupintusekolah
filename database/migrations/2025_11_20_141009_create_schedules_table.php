@@ -13,18 +13,15 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('teacher_id');
-            $table->unsignedBigInteger('subject_id');
-            $table->unsignedBigInteger('class_id');
+            $table->foreignId('teacher_id')->constrained('users')->onDelete('restrict');
+            $table->foreignId('class_id')->constrained('classes')->onDelete('restrict');
+            $table->foreignId('subject_id')->constrained('subjects')->onDelete('restrict');
             $table->enum('day', ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']);
             $table->time('start_time');
             $table->time('end_time');
-            $table->string('semester');
+            $table->foreignId('academic_year_id')->constrained('academic_years')->onDelete('restrict');
+            $table->boolean('active')->default(true);
             $table->timestamps();
-
-            $table->foreign('teacher_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
-            $table->foreign('class_id')->references('id')->on('classes')->onDelete('cascade');
         });
     }
 

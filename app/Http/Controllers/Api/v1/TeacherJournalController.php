@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Helpers\ApiQueryHelper;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\TeacherJournal\TeacherJournalRequest;
-use App\Models\JournalSubject;
-use App\Models\TeacherJournal;
+use App\Http\Requests\Journal\JournalRequest;
+use App\Models\Journal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,8 +14,8 @@ class TeacherJournalController extends Controller
     public function index()
     {
         $datas = ApiQueryHelper::apply(
-            TeacherJournal::query(),
-            TeacherJournal::apiQueryConfig()
+            Journal::query(),
+            Journal::apiQueryConfig()
         );
         try {
             return $datas;
@@ -25,22 +24,16 @@ class TeacherJournalController extends Controller
         }
     }
 
-    public function store(TeacherJournalRequest $request)
+    public function store(JournalRequest $request)
     {
         $validated = $request->validated();
-        $subjectIds = $validated['subject_ids'];
-        unset($validated['subject_ids']);
-
         DB::beginTransaction();
         try {
-            $journal = TeacherJournal::create($validated);
+            $journal = Journal::create($validated);
 
-            // Create journal subjects relationships
-            foreach ($subjectIds as $subjectId) {
-                JournalSubject::create([
-                    'teacher_journal_id' => $journal->id,
-                    'subject_id' => $subjectId
-                ]);
+            // Handle subjects if provided
+            if (isset($validated['subjects']) && is_array($validated['subjects'])) {
+                $journal->subjects()->sync($validated['subjects']);
             }
 
             DB::commit();
@@ -51,26 +44,34 @@ class TeacherJournalController extends Controller
         }
     }
 
-    public function update(TeacherJournalRequest $request, $id)
+    public function show($id)
+    {
+        try {
+            $journal = Journal::with(['teacher', 'class', 'academicYear', 'subjects'])->find($id);
+            if (!$journal) {
+                return apiResponse('Jurnal tidak ditemukan', null, 404);
+            }
+            return $journal;
+        } catch (\Throwable $th) {
+            return apiResponse($th->getMessage(), null, 500);
+        }
+    }
+
+    public function update(JournalRequest $request, $id)
     {
         $validated = $request->validated();
-        $subjectIds = $validated['subject_ids'];
-        unset($validated['subject_ids']);
-
         DB::beginTransaction();
         try {
-            $journal = TeacherJournal::find($id);
+            $journal = Journal::find($id);
+            if (!$journal) {
+                return apiResponse('Jurnal tidak ditemukan', null, 404);
+            }
+
             $journal->update($validated);
 
-            // Delete existing journal subjects
-            JournalSubject::where('teacher_journal_id', $journal->id)->delete();
-
-            // Create new journal subjects relationships
-            foreach ($subjectIds as $subjectId) {
-                JournalSubject::create([
-                    'teacher_journal_id' => $journal->id,
-                    'subject_id' => $subjectId
-                ]);
+            // Handle subjects if provided
+            if (isset($validated['subjects']) && is_array($validated['subjects'])) {
+                $journal->subjects()->sync($validated['subjects']);
             }
 
             DB::commit();
@@ -85,12 +86,55 @@ class TeacherJournalController extends Controller
     {
         DB::beginTransaction();
         try {
-            $journal = TeacherJournal::find($id);
+            $journal = Journal::find($id);
+            if (!$journal) {
+                return apiResponse('Jurnal tidak ditemukan', null, 404);
+            }
+
             $journal->delete();
             DB::commit();
             return apiResponse('Jurnal guru berhasil dihapus', ['journal' => $journal]);
         } catch (\Throwable $th) {
             DB::rollBack();
+            return apiResponse($th->getMessage(), null, 500);
+        }
+    }
+
+    public function getByTeacher($teacherId)
+    {
+        try {
+            $journals = Journal::with(['class', 'academicYear', 'subjects'])
+                ->where('teacher_id', $teacherId)
+                ->orderBy('date', 'desc')
+                ->get();
+            return $journals;
+        } catch (\Throwable $th) {
+            return apiResponse($th->getMessage(), null, 500);
+        }
+    }
+
+    public function getByClass($classId)
+    {
+        try {
+            $journals = Journal::with(['teacher', 'academicYear', 'subjects'])
+                ->where('class_id', $classId)
+                ->orderBy('date', 'desc')
+                ->get();
+            return $journals;
+        } catch (\Throwable $th) {
+            return apiResponse($th->getMessage(), null, 500);
+        }
+    }
+
+    public function getByDate($date)
+    {
+        try {
+            $journals = Journal::with(['teacher', 'class', 'academicYear', 'subjects'])
+                ->whereDate('date', $date)
+                ->orderBy('date', 'desc')
+                ->get();
+            return $journals;
+        } catch (\Throwable $th) {
             return apiResponse($th->getMessage(), null, 500);
         }
     }
