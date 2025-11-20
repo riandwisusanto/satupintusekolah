@@ -1,43 +1,26 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { usePermission } from '@/lib/permission'
-import { alertError } from '@/lib/alert'
-import { apiRequest } from '@/lib/apiClient'
-import dayjs from 'dayjs'
 
 const router = useRouter()
-const { checkPermission } = usePermission()
-const loading = ref(false)
-const schedules = ref([])
+const tableRef = ref()
 const showAll = ref(false)
-const selectedSchedule = ref(null)
 
-const fetchSchedules = async () => {
-    loading.value = true
-    try {
-        const endpoint = showAll.value ? 'schedules/teacher' : 'schedules/teacher/today'
-        const { ok, data, error } = await apiRequest(endpoint)
-        
-        if (ok) {
-            schedules.value = data || []
-        } else {
-            alertError(error)
-        }
-    } catch (err) {
-        alertError(err.message)
-    } finally {
-        loading.value = false
-    }
-}
+const columns = [
+    { field: 'classroom.name', display: 'Kelas' },
+    { field: 'subject.name', display: 'Mata Pelajaran' },
+    { field: 'day', display: 'Hari' },
+    { field: 'start_time', display: 'Jam Mulai' },
+    { field: 'end_time', display: 'Jam Selesai' },
+    { field: 'action', display: 'Aksi', sortable: false },
+]
 
 const toggleView = () => {
     showAll.value = !showAll.value
-    fetchSchedules()
+    // TableServerSide akan otomatis reload ketika endpoint berubah
 }
 
 const openJournalForm = (schedule) => {
-    selectedSchedule.value = schedule
     // Navigate to teacher journals with pre-filled data
     router.push({
         name: 'teacher-journals',
@@ -51,19 +34,10 @@ const openJournalForm = (schedule) => {
     })
 }
 
-const formatDate = (dateString) => {
-    if (!dateString) return '-'
-    return dayjs(dateString).format('DD MMMM YYYY')
-}
-
 const formatTime = (timeString) => {
     if (!timeString) return '-'
     return timeString.slice(0, 5)
 }
-
-onMounted(() => {
-    fetchSchedules()
-})
 </script>
 
 <template>
@@ -84,7 +58,7 @@ onMounted(() => {
     </section>
 
     <section class="content">
-        <div class="container-fluid">
+        <!-- <div class="container-fluid"> -->
             <!-- Toggle View -->
             <div class="row mb-3">
                 <div class="col-12">
@@ -109,67 +83,39 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- Schedules List -->
+            <!-- Schedules Table -->
             <div class="row">
                 <div class="col-12">
-                    <div v-if="loading" class="text-center">
-                        <i class="fas fa-spinner fa-spin"></i> Memuat jadwal...
-                    </div>
-                    
-                    <div v-else-if="schedules.length === 0" class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        {{ showAll ? 'Tidak ada jadwal untuk hari ini' : 'Tidak ada jadwal' }}
-                    </div>
-                    
-                    <div v-else>
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">
-                                    <i class="fas fa-calendar"></i>
-                                    {{ showAll ? 'Daftar Jadwal' : 'Jadwal Hari Ini' }}
-                                </h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th v-if="!showAll">Tanggal</th>
-                                                <th>Kelas</th>
-                                                <th>Mata Pelajaran</th>
-                                                <th>Hari</th>
-                                                <th>Jam</th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="(schedule, index) in schedules" :key="schedule.id">
-                                                <td>{{ index + 1 }}</td>
-                                                <td v-if="!showAll">{{ formatDate(new Date()) }}</td>
-                                                <td>{{ schedule.class_name }}</td>
-                                                <td>{{ schedule.subject_name }}</td>
-                                                <td>{{ schedule.day }}</td>
-                                                <td>{{ formatTime(schedule.start_time) }} - {{ formatTime(schedule.end_time) }}</td>
-                                                <td>
-                                                    <button 
-                                                        class="btn btn-sm btn-primary"
-                                                        @click="openJournalForm(schedule)"
-                                                        title="Buat Jurnal"
-                                                    >
-                                                        <i class="fas fa-book"></i> Jurnal
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <TableServerSide
+                        ref="tableRef"
+                        :title="showAll ? 'Daftar Jadwal' : 'Jadwal Hari Ini'"
+                        :columns="columns"
+                        :endpoint="showAll ? 'schedules' : 'schedules/today'"
+                        :initial-sort="{ field: 'day', order: 'asc' }"
+                        :per_page="10"
+                        :extra="{
+                            with: 'subject,classroom',
+                        }"
+                    >
+                        <template #cell-start_time="{ row }">
+                            {{ formatTime(row.start_time) }}
+                        </template>
+                        <template #cell-end_time="{ row }">
+                            {{ formatTime(row.end_time) }}
+                        </template>
+                        <template #cell-action="{ row }">
+                            <button 
+                                class="btn btn-sm btn-primary"
+                                @click="openJournalForm(row)"
+                                title="Buat Jurnal"
+                            >
+                                <i class="fas fa-book"></i> Jurnal
+                            </button>
+                        </template>
+                    </TableServerSide>
                 </div>
             </div>
-        </div>
+        <!-- </div> -->
     </section>
 </template>
 
