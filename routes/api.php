@@ -29,5 +29,6 @@ Route::prefix('v1')
             Route::get('schedules/today', [\App\Http\Controllers\Api\v1\ScheduleController::class, 'today']);
             Route::apiResource('schedules', \App\Http\Controllers\Api\v1\ScheduleController::class);
             Route::apiResource('journals', \App\Http\Controllers\Api\v1\JournalController::class);
+            Route::apiResource('student-attendances', \App\Http\Controllers\Api\v1\StudentAttendanceController::class);
         });
     });
