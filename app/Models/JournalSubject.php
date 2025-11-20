@@ -13,12 +13,12 @@ class JournalSubject extends Model
     use HasFactory, HasPermissions, LogsModelChanges, HasApiQueryConfig;
 
     protected $fillable = [
-        'teacher_journal_id',
+        'journal_id',
         'subject_id',
     ];
 
     protected $casts = [
-        'teacher_journal_id' => 'integer',
+        'journal_id' => 'integer',
         'subject_id' => 'integer',
     ];
 
@@ -36,7 +36,7 @@ class JournalSubject extends Model
 
     public function teacherJournal()
     {
-        return $this->belongsTo(TeacherJournal::class, 'teacher_journal_id');
+        return $this->belongsTo(TeacherJournal::class, 'journal_id');
     }
 
     public function subject()

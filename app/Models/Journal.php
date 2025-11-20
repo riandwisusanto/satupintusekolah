@@ -15,6 +15,7 @@ class Journal extends Model
     protected $fillable = [
         'teacher_id',
         'class_id',
+        'academic_year_id',
         'date',
         'theme',
         'activity',
@@ -27,7 +28,6 @@ class Journal extends Model
     protected $casts = [
         'teacher_id' => 'integer',
         'class_id' => 'integer',
-        'date' => 'date',
         'active' => 'boolean',
     ];
 
@@ -48,26 +48,12 @@ class Journal extends Model
 
     public function subjects()
     {
-        return $this->hasMany(JournalSubject::class, 'teacher_journal_id');
+        return $this->hasMany(JournalSubject::class, 'journal_id');
     }
 
 
     public function classroom()
     {
         return $this->belongsTo(Classroom::class, 'class_id');
-    }
-
-    public static function apiQueryConfig(): array
-    {
-        return [
-            'searchable' => [
-                'theme',
-                'activity',
-                'date',
-                'teacher.name',
-                'classroom.name',
-            ],
-            'with' => ['teacher', 'subjects', 'classroom']
-        ];
     }
 }

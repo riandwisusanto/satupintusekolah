@@ -38,7 +38,7 @@ class JournalController extends Controller
             // Create journal subjects relationships
             foreach ($subjectIds as $subjectId) {
                 JournalSubject::create([
-                    'teacher_journal_id' => $journal->id,
+                    'journal_id' => $journal->id,
                     'subject_id' => $subjectId
                 ]);
             }
@@ -60,15 +60,18 @@ class JournalController extends Controller
         DB::beginTransaction();
         try {
             $journal = Journal::find($id);
+
+            if (!$journal) {
+                return apiResponse('Jurnal guru tidak ditemukan', null, 404);
+            }
+
             $journal->update($validated);
 
-            // Delete existing journal subjects
-            JournalSubject::where('teacher_journal_id', $journal->id)->delete();
+            JournalSubject::where('journal_id', $journal->id)->delete();
 
-            // Create new journal subjects relationships
             foreach ($subjectIds as $subjectId) {
                 JournalSubject::create([
-                    'teacher_journal_id' => $journal->id,
+                    'journal_id' => $journal->id,
                     'subject_id' => $subjectId
                 ]);
             }
