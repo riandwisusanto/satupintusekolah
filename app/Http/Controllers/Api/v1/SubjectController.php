@@ -72,26 +72,4 @@ class SubjectController extends Controller
             return apiResponse($th->getMessage(), null, 500);
         }
     }
-
-    public function getOptions()
-    {
-        try {
-            $subjects = Subject::where('active', true)->select('id', 'name')->get();
-
-            return $subjects;
-        } catch (\Throwable $th) {
-            return apiResponse($th->getMessage(), null, 500);
-        }
-    }
-
-    public function getOptionBySchedule($id)
-    {
-        try {
-            $subjects = Schedule::find($id)->subject->select('id', 'name')->get();
-
-            return $subjects;
-        } catch (\Throwable $th) {
-            return apiResponse($th->getMessage(), null, 500);
-        }
-    }
 }

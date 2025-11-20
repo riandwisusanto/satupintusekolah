@@ -15,7 +15,9 @@ class ScheduleController extends Controller
     public function index()
     {
         $datas = ApiQueryHelper::apply(
-            Schedule::query(),
+            Schedule::when(!auth()->user()->isAdmin(), function ($query) {
+                $query->where('teacher_id', auth()->user()->id);
+            }),
             Schedule::apiQueryConfig()
         );
         try {
@@ -69,72 +71,21 @@ class ScheduleController extends Controller
         }
     }
 
-    public function getTeacherTodaySchedules(Request $request)
+    public function today()
     {
-        try {
-            $user = Auth::user();
-            $today = now()->format('Y-m-d');
-            $dayOfWeek = now()->dayOfWeek;
-            if ($dayOfWeek == 0) {
-                return collect([]);
-            }
-            $dbDay = $dayOfWeek;
-
-            $schedules = Schedule::with(['teacher', 'subject', 'classroom'])
-                ->where('teacher_id', $user->id)
-                ->where('day', $dbDay)
-                ->select('id', 'teacher_id', 'subject_id', 'class_id', 'day', 'start_time', 'end_time')
-                ->get();
-
-            return $schedules->map(function ($schedule) {
-                return [
-                    'id' => $schedule->id,
-                    'display_name' => "{$schedule->classroom->name} - {$schedule->subject->name} - " . date('H:i', strtotime($schedule->start_time)) . " s/d " . date('H:i', strtotime($schedule->end_time)) . "",
-                    'class_name' => $schedule->classroom->name,
-                    'subject_name' => $schedule->subject->name,
-                    'start_time' => date('H:i', strtotime($schedule->start_time)),
-                    'end_time' => date('H:i', strtotime($schedule->end_time)),
-                    'day' => $schedule->day,
-                    'teacher_id' => $schedule->teacher_id,
-                    'subject_id' => $schedule->subject_id,
-                    'class_id' => $schedule->class_id,
-                ];
-            });
-        } catch (\Throwable $th) {
-            return apiResponse($th->getMessage(), null, 500);
+        $dayOfWeek = now()->dayOfWeek;
+        if ($dayOfWeek == 0) {
+            return collect([]);
         }
-    }
-
-    public function getTeacherSchedules(Request $request)
-    {
+        $dbDay = $dayOfWeek;
+        $datas = ApiQueryHelper::apply(
+            Schedule::when(!auth()->user()->isAdmin(), function ($query) {
+                $query->where('teacher_id', auth()->user()->id);
+            })->where('day', $dbDay),
+            Schedule::apiQueryConfig()
+        );
         try {
-            $user = Auth::user();
-
-            $query = Schedule::with(['teacher', 'subject', 'classroom'])
-                ->where('teacher_id', $user->id)
-                ->select('id', 'teacher_id', 'subject_id', 'class_id', 'day', 'start_time', 'end_time');
-
-            // Filter by day if provided
-            if ($request->has('day')) {
-                $query->where('day', $request->day);
-            }
-
-            $schedules = $query->get();
-
-            return $schedules->map(function ($schedule) {
-                return [
-                    'id' => $schedule->id,
-                    'display_name' => "{$schedule->classroom->name} - {$schedule->subject->name} - " . date('H:i', strtotime($schedule->start_time)) . " s/d " . date('H:i', strtotime($schedule->end_time)) . "",
-                    'class_name' => $schedule->classroom->name,
-                    'subject_name' => $schedule->subject->name,
-                    'start_time' => date('H:i', strtotime($schedule->start_time)),
-                    'end_time' => date('H:i', strtotime($schedule->end_time)),
-                    'day' => $schedule->day,
-                    'teacher_id' => $schedule->teacher_id,
-                    'subject_id' => $schedule->subject_id,
-                    'class_id' => $schedule->class_id,
-                ];
-            });
+            return $datas;
         } catch (\Throwable $th) {
             return apiResponse($th->getMessage(), null, 500);
         }
