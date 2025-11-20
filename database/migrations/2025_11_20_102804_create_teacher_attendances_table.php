@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('teacher_id')->constrained('users')->onDelete('restrict');
             $table->date('date');
             $table->time('time_in');
-            $table->time('time_out');
+            $table->time('time_out')->nullable();
             $table->string('photo_in')->nullable();
             $table->string('photo_out')->nullable();
             $table->timestamps();
