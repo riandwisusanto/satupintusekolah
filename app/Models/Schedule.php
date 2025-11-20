@@ -16,10 +16,10 @@ class Schedule extends Model
         'teacher_id',
         'subject_id',
         'class_id',
+        'academic_year_id',
         'day',
         'start_time',
         'end_time',
-        'semester',
     ];
 
     protected $appends = ['editable', 'deleteable'];
@@ -53,5 +53,10 @@ class Schedule extends Model
     public function classroom()
     {
         return $this->belongsTo(Classroom::class, 'class_id');
+    }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
     }
 }

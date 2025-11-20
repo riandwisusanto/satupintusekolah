@@ -25,10 +25,10 @@ class ScheduleRequest extends FormRequest
             'teacher_id' => 'required|exists:users,id',
             'subject_id' => 'required|exists:subjects,id',
             'class_id' => 'required|exists:classes,id',
+            'academic_year_id' => 'required|exists:academic_years,id',
             'day' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'semester' => 'required|string|max:255',
         ];
     }
 

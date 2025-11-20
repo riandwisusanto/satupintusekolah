@@ -20,7 +20,6 @@ return new class extends Migration
             $table->enum('day', ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']);
             $table->time('start_time');
             $table->time('end_time');
-            $table->string('semester');
             $table->timestamps();
 
             $table->foreign('teacher_id')->references('id')->on('users')->onDelete('cascade');
