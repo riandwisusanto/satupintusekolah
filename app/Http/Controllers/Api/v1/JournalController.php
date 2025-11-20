@@ -4,19 +4,19 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Helpers\ApiQueryHelper;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\TeacherJournal\TeacherJournalRequest;
+use App\Http\Requests\Journal\JournalRequest;
 use App\Models\JournalSubject;
-use App\Models\TeacherJournal;
+use App\Models\Journal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class TeacherJournalController extends Controller
+class JournalController extends Controller
 {
     public function index()
     {
         $datas = ApiQueryHelper::apply(
-            TeacherJournal::query(),
-            TeacherJournal::apiQueryConfig()
+            Journal::query(),
+            Journal::apiQueryConfig()
         );
         try {
             return $datas;
@@ -25,7 +25,7 @@ class TeacherJournalController extends Controller
         }
     }
 
-    public function store(TeacherJournalRequest $request)
+    public function store(JournalRequest $request)
     {
         $validated = $request->validated();
         $subjectIds = $validated['subject_ids'];
@@ -33,7 +33,7 @@ class TeacherJournalController extends Controller
 
         DB::beginTransaction();
         try {
-            $journal = TeacherJournal::create($validated);
+            $journal = Journal::create($validated);
 
             // Create journal subjects relationships
             foreach ($subjectIds as $subjectId) {
@@ -51,7 +51,7 @@ class TeacherJournalController extends Controller
         }
     }
 
-    public function update(TeacherJournalRequest $request, $id)
+    public function update(JournalRequest $request, $id)
     {
         $validated = $request->validated();
         $subjectIds = $validated['subject_ids'];
@@ -59,7 +59,7 @@ class TeacherJournalController extends Controller
 
         DB::beginTransaction();
         try {
-            $journal = TeacherJournal::find($id);
+            $journal = Journal::find($id);
             $journal->update($validated);
 
             // Delete existing journal subjects
@@ -85,7 +85,7 @@ class TeacherJournalController extends Controller
     {
         DB::beginTransaction();
         try {
-            $journal = TeacherJournal::find($id);
+            $journal = Journal::find($id);
             $journal->delete();
             DB::commit();
             return apiResponse('Jurnal guru berhasil dihapus', ['journal' => $journal]);

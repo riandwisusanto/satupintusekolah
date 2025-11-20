@@ -32,6 +32,6 @@ Route::prefix('v1')
             Route::get('schedules/teacher/today', [\App\Http\Controllers\Api\v1\ScheduleController::class, 'getTeacherTodaySchedules']);
             Route::get('schedules/teacher', [\App\Http\Controllers\Api\v1\ScheduleController::class, 'getTeacherSchedules']);
             Route::apiResource('schedules', \App\Http\Controllers\Api\v1\ScheduleController::class);
-            Route::apiResource('teacher-journals', \App\Http\Controllers\Api\v1\TeacherJournalController::class);
+            Route::apiResource('journals', \App\Http\Controllers\Api\v1\JournalController::class);
         });
     });

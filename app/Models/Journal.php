@@ -8,7 +8,7 @@ use App\Traits\LogsModelChanges;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TeacherJournal extends Model
+class Journal extends Model
 {
     use HasFactory, HasPermissions, LogsModelChanges, HasApiQueryConfig;
 
