@@ -4,7 +4,7 @@ import { usePermission } from '@/lib/permission'
 import { alertError, alertSuccess, alretConfirm } from '@/lib/alert'
 import { apiRequest } from '@/lib/apiClient'
 import FormAdd from '../components/form.vue'
-import StatusTag from '@/components/StatusTag.vue'
+
 
 const tableRef = ref()
 const { checkPermission } = usePermission()

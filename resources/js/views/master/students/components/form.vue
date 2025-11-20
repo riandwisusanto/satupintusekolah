@@ -22,8 +22,6 @@
 
 <script setup>
 import { computed, reactive, watch } from 'vue'
-import FormDrawer from '../../../../components/FormDrawer.vue'
-import FormSelectClassroom from '@/components/FormSelectClassroom.vue'
 
 const props = defineProps({
     selected: {

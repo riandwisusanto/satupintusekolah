@@ -13,7 +13,6 @@
 
 <script setup>
 import { computed, reactive, watch } from 'vue'
-import FormDrawer from '../../../../components/FormDrawer.vue'
 
 const props = defineProps({
     selected: {
