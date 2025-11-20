@@ -24,8 +24,6 @@ class AcademicYear extends Model
 
     protected $casts = [
         'semester' => 'integer',
-        'start_date' => 'date',
-        'end_date' => 'date',
         'active' => 'boolean',
     ];
 

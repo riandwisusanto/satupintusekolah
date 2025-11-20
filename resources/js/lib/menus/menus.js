@@ -19,6 +19,13 @@ export const sidebarMenus = [
                 permission: 'master_data.users.view',
             },
             {
+                key: 'academic-years',
+                label: 'Tahun Ajaran',
+                icon: 'fas fa-calendar',
+                to: '/master-data/academic-years',
+                permission: 'master_data.academic_years.view',
+            },
+            {
                 key: 'classrooms',
                 label: 'Kelas',
                 icon: 'fas fa-school',
