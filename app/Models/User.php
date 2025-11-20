@@ -77,6 +77,11 @@ class User extends Authenticatable
         return $this->role->permissions();
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->role_id === 1;
+    }
+
     public static function apiQueryConfig(): array
     {
         return [

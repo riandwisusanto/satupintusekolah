@@ -6,7 +6,6 @@ use App\Helpers\ApiQueryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UserRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,7 +14,9 @@ class UserController extends Controller
     public function index()
     {
         $datas = ApiQueryHelper::apply(
-            User::query(),
+            User::when(!auth()->user()->isAdmin(), function ($query) {
+                return $query->where('id', auth()->user()->id);
+            }),
             User::apiQueryConfig()
         );
         try {
@@ -30,7 +31,6 @@ class UserController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            // Handle photo upload
             if (isset($validated['photo']) && $validated['photo'] instanceof \Illuminate\Http\UploadedFile) {
                 $photoPath = $validated['photo']->store('photos', 'public');
                 $validated['photo'] = $photoPath;
@@ -94,7 +94,6 @@ class UserController extends Controller
         try {
             $user = User::find($id);
 
-            // Delete photo if exists
             if ($user->photo && Storage::disk('public')->exists($user->photo)) {
                 Storage::disk('public')->delete($user->photo);
             }
