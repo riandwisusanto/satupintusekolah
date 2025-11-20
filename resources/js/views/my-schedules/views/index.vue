@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, h } from 'vue'
 import { useRouter } from 'vue-router'
+import { formatTime } from '@/lib/formatters'
 
 const router = useRouter()
 const tableRef = ref()
@@ -10,8 +11,8 @@ const columns = [
     { field: 'classroom.name', display: 'Kelas' },
     { field: 'subject.name', display: 'Mata Pelajaran' },
     { field: 'day', display: 'Hari' },
-    { field: 'start_time', display: 'Jam Mulai' },
-    { field: 'end_time', display: 'Jam Selesai' },
+    { field: 'start_time', display: 'Jam Mulai', component:({ row }) => h('span', {}, formatTime(row.start_time)) },
+    { field: 'end_time', display: 'Jam Selesai', component:({ row }) => h('span', {}, formatTime(row.end_time)) },
     { field: 'action', display: 'Aksi', sortable: false },
 ]
 
@@ -32,11 +33,6 @@ const openJournalForm = (schedule) => {
             date: new Date().toISOString().split('T')[0]
         }
     })
-}
-
-const formatTime = (timeString) => {
-    if (!timeString) return '-'
-    return timeString.slice(0, 5)
 }
 </script>
 
@@ -97,12 +93,6 @@ const formatTime = (timeString) => {
                             with: 'subject,classroom',
                         }"
                     >
-                        <template #cell-start_time="{ row }">
-                            {{ formatTime(row.start_time) }}
-                        </template>
-                        <template #cell-end_time="{ row }">
-                            {{ formatTime(row.end_time) }}
-                        </template>
                         <template #cell-action="{ row }">
                             <button 
                                 class="btn btn-sm btn-primary"

@@ -51,6 +51,11 @@ export function formatDate(date) {
     })
 }
 
+export function formatTime (timeString) {
+    if (!timeString) return '-'
+    return timeString.slice(0, 5)
+}
+
 /**
  * Generate random color for charts
  * @param {number} index - Index for consistent color generation

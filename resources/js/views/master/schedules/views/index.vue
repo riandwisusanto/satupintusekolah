@@ -3,6 +3,7 @@ import { ref, h } from 'vue'
 import { usePermission } from '@/lib/permission'
 import { alertError, alertSuccess, alretConfirm } from '@/lib/alert'
 import { apiRequest } from '@/lib/apiClient'
+import { formatTime } from '@/lib/formatters'
 import FormAdd from '../components/form.vue'
 
 
@@ -18,8 +19,8 @@ const columns = [
     { field: 'teacher.name', display: 'Guru' },
     { field: 'subject.name', display: 'Mata Pelajaran' },
     { field: 'classroom.name', display: 'Kelas' },
-    { field: 'start_time', display: 'Waktu Mulai' },
-    { field: 'end_time', display: 'Waktu Selesai' },
+    { field: 'start_time', display: 'Waktu Mulai', component:({ row }) => h('span', {}, formatTime(row.start_time)) },
+    { field: 'end_time', display: 'Waktu Selesai', component:({ row }) => h('span', {}, formatTime(row.end_time)) },
     { field: 'action', display: 'Action', sortable: false },
 ]
 

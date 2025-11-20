@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Helpers\ApiQueryHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Schedule\ScheduleRequest;
+use App\Models\AcademicYear;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +33,10 @@ class ScheduleController extends Controller
         $validated = $request->validated();
         DB::beginTransaction();
         try {
-            $schedule = Schedule::create($validated);
+            $schedule = Schedule::create([
+                ...$validated,
+                'academic_year_id' => AcademicYear::where('active', true)->first()->id
+            ]);
 
             DB::commit();
             return apiResponse('Jadwal berhasil dibuat', ['schedule' => $schedule]);
@@ -48,7 +52,10 @@ class ScheduleController extends Controller
         DB::beginTransaction();
         try {
             $schedule = Schedule::find($id);
-            $schedule->update($validated);
+            $schedule->update([
+                ...$validated,
+                'academic_year_id' => AcademicYear::where('active', true)->first()->id
+            ]);
             DB::commit();
             return apiResponse('Jadwal berhasil diupdate', ['schedule' => $schedule]);
         } catch (\Throwable $th) {
