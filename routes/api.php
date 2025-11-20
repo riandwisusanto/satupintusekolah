@@ -26,6 +26,7 @@ Route::prefix('v1')
             Route::get('classrooms/options', [\App\Http\Controllers\Api\v1\ClassroomController::class, 'getOptions']);
             Route::apiResource('classrooms', \App\Http\Controllers\Api\v1\ClassroomController::class);
             Route::apiResource('students', \App\Http\Controllers\Api\v1\StudentController::class);
+            Route::get('subjects/options', [\App\Http\Controllers\Api\v1\SubjectController::class, 'getOptions']);
             Route::apiResource('subjects', \App\Http\Controllers\Api\v1\SubjectController::class);
             Route::apiResource('academic-years', \App\Http\Controllers\Api\v1\AcademicYearController::class);
             Route::get('schedules/today', [\App\Http\Controllers\Api\v1\ScheduleController::class, 'today']);

@@ -1,64 +1,64 @@
 <template>
     <SelectServerSide
-        v-model="selectedValue"
-        :label="label"
-        :placeholder="placeholder || '-- Pilih Mata Pelajaran --'"
-        :required="required"
-        :disabled="disabled"
+        v-model="model"
         :name="name"
-        :endpoint="endpoint"
-        :serverside="true"
-        label-key="name"
-        value-key="id"
-        @select="handleSelect"
+        :label="label"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :required="required"
+        :options="rankOptions"
+        :serverside="false"
     />
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import SelectServerSide from './SelectServerSide.vue'
+import { apiRequest } from '../lib/apiClient'
 
+// Props
 const props = defineProps({
-    modelValue: {
-        type: [String, Number],
-        default: '',
-    },
-    label: {
-        type: String,
-        default: 'Pilih Mata Pelajaran',
-    },
-    placeholder: {
-        type: String,
-        default: '',
-    },
-    required: {
-        type: Boolean,
-        default: false,
-    },
-    disabled: {
-        type: Boolean,
-        default: false,
-    },
+    modelValue: [String, Number],
     name: {
         type: String,
         default: 'subject_id',
     },
+    label: {
+        type: String,
+        default: 'Mata Pelajaran',
+    },
+    placeholder: {
+        type: String,
+        default: 'Pilih Mata Pelajaran',
+    },
+    disabled: Boolean,
+    required: Boolean,
 })
 
-const emit = defineEmits(['update:modelValue', 'select'])
+const emit = defineEmits(['update:modelValue'])
 
-const selectedValue = ref(props.modelValue)
-const endpoint = 'subjects/options'
-
-watch(() => props.modelValue, (newValue) => {
-    selectedValue.value = newValue
+// Reactive model bridging
+const model = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
 })
 
-watch(selectedValue, (newValue) => {
-    emit('update:modelValue', newValue)
+// Customer options
+const rankOptions = ref([])
+
+onMounted(async () => {
+    fetchData()
 })
 
-const handleSelect = (selectedOption) => {
-    emit('select', selectedOption)
+const fetchData = async () => {
+    const { ok, data, error } = await apiRequest('subjects/options')
+    if (ok) {
+        rankOptions.value = data?.data?.subjects?.map((b) => ({
+            label: b?.name,
+            value: b?.id,
+        }))
+    } else {
+        console.error('[ProvinceSelect] gagal mengambil data kota', error)
+    }
 }
 </script>

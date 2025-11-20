@@ -20,7 +20,6 @@ const columns = [
     { field: 'classroom.name', display: 'Kelas' },
     { field: 'start_time', display: 'Waktu Mulai' },
     { field: 'end_time', display: 'Waktu Selesai' },
-    { field: 'semester', display: 'Semester' },
     { field: 'action', display: 'Action', sortable: false },
 ]
 
@@ -106,6 +105,9 @@ const save = async (row) => {
             :per_page="10"
             endpoint="schedules"
             :loading="loading"
+            :extra="{
+                with: 'teacher,subject,classroom',
+            }"
             @open-drawer="addItem"
         >
             <template #cell-action="{ row }">

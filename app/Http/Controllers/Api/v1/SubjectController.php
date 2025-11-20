@@ -72,4 +72,14 @@ class SubjectController extends Controller
             return apiResponse($th->getMessage(), null, 500);
         }
     }
+
+    public function getOptions()
+    {
+        $datas = Subject::all();
+        try {
+            return apiResponse('Mata pelajaran fetched successfully', ['subjects' => $datas]);
+        } catch (\Throwable $th) {
+            return apiResponse($th->getMessage(), null, 500);
+        }
+    }
 }

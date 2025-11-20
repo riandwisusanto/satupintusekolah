@@ -9,18 +9,21 @@
         <FormSelectSubject v-model="form.subject_id" label="Mata Pelajaran" required />
         <FormSelectClassroom v-model="form.class_id" label="Kelas" required />
         
-        <div class="form-group">
-            <label>Hari<span class="text-red-500">*</span></label>
-            <select v-model="form.day" class="form-control" required>
-                <option value="">-- Pilih Hari --</option>
-                <option value="Senin">Senin</option>
-                <option value="Selasa">Selasa</option>
-                <option value="Rabu">Rabu</option>
-                <option value="Kamis">Kamis</option>
-                <option value="Jumat">Jumat</option>
-                <option value="Sabtu">Sabtu</option>
-            </select>
-        </div>
+        <SelectServerSide
+            v-model="form.day"
+            label="Hari"
+            placeholder="Pilih Hari"
+            :options="[
+                {label: 'Senin', value: 'Senin'},
+                {label: 'Selasa', value: 'Selasa'},
+                {label: 'Rabu', value: 'Rabu'},
+                {label: 'Kamis', value: 'Kamis'},
+                {label: 'Jumat', value: 'Jumat'},
+                {label: 'Sabtu', value: 'Sabtu'},
+            ]"
+            :serverside="false"
+            required
+        />
 
         <FormInput 
             v-model="form.start_time" 
@@ -34,13 +37,6 @@
             label="Waktu Selesai" 
             type="time" 
             required 
-        />
-        
-        <FormInput 
-            v-model="form.semester" 
-            label="Semester" 
-            required 
-            placeholder="Contoh: Ganjil 2024/2025"
         />
     </FormDrawer>
 </template>
@@ -79,7 +75,6 @@ const form = reactive({
     day: '',
     start_time: '',
     end_time: '',
-    semester: '',
 })
 
 function fillForm(src) {
@@ -110,7 +105,6 @@ function resetForm() {
         day: '',
         start_time: '',
         end_time: '',
-        semester: '',
     })
 }
 
