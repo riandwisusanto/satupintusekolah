@@ -15,6 +15,7 @@ class AuthController extends Controller
         $validated = $request->validated();
 
         $user = User::where('email', $validated['email'])
+            ->with('role')
             ->where('active', true)
             ->first();
 
@@ -32,7 +33,6 @@ class AuthController extends Controller
                 'token' => $token,
                 'user' => [
                     ...$user->toArray(),
-                    'role' => $user->role,
                     'permissions' => $user->getAllPermissions()->pluck('name'),
                 ]
             ]
@@ -41,13 +41,12 @@ class AuthController extends Controller
 
     public function me()
     {
-        $user = auth()->user();
+        $user = auth()->user()->load('role');
         return apiResponse(
             'User fetched',
             [
                 'user' => [
                     ...$user->toArray(),
-                    'role' => $user->role,
                     'permissions' => $user->getAllPermissions()->pluck('name'),
                 ]
             ]
