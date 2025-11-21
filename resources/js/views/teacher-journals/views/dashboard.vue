@@ -197,7 +197,7 @@ const quickAction = (action) => {
                                             class="btn btn-lg btn-success btn-block"
                                             :disabled="hasSubmittedToday"
                                         >
-                                            <i class="fas fa-pen-fancy fa-2x mb-2"></i><br>
+                                            <i class="fas fa-pen-fancy fa-2x"></i><br>
                                             Input Jurnal<br>
                                             <small>{{ todaySubjects.length }} Mata Pelajaran Hari Ini</small>
                                         </button>

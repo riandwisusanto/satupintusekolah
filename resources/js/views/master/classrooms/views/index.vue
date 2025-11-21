@@ -60,6 +60,10 @@ const save = async (row) => {
             if (row.id) {
                 endpoint = `classrooms/${row.id}`
             }
+
+            if (!row.teacher_id) {
+                delete row.teacher_id
+            }
             const { ok, data, error } = await apiRequest(endpoint, {
                 method: row.id ? 'put' : 'post',
                 body: row,

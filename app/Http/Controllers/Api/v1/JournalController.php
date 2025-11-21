@@ -37,7 +37,10 @@ class JournalController extends Controller
 
         DB::beginTransaction();
         try {
-            $journal = Journal::create($validated);
+            $journal = Journal::create([
+                ...$validated,
+                'academic_year_id' => AcademicYear::where('active', true)->first()->id
+            ]);
 
             // Create journal subjects relationships
             foreach ($subjectIds as $subjectId) {
@@ -215,7 +218,11 @@ class JournalController extends Controller
     {
         try {
             $user = $request->user();
-            $currentDay = strtolower(Carbon::now()->format('l'));
+            $dayOfWeek = now()->dayOfWeek;
+            if ($dayOfWeek == 0) {
+                return collect([]);
+            }
+            $currentDay = $dayOfWeek;
 
             $todaySubjects = Schedule::where('teacher_id', $user->id)
                 ->where('day', $currentDay)

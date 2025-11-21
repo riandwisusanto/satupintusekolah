@@ -3,13 +3,13 @@ import { ref, h } from 'vue'
 import { usePermission } from '@/lib/permission'
 import { alertError, alertSuccess, alretConfirm } from '@/lib/alert'
 import { apiRequest } from '@/lib/apiClient'
-import FormAdd from '../components/form.vue'
+import MultiSubjectJournal from '../components/MultiSubjectJournal.vue'
+import { formatDate } from '../../../lib/formatters'
 
 
 const tableRef = ref()
 const { checkPermission } = usePermission()
-const drawer = ref(false)
-const selected = ref(null)
+const showJournalForm = ref(false)
 const loading = ref(false)
 
 const statusMap = {
@@ -17,20 +17,21 @@ const statusMap = {
     0: { text: 'Tidak Aktif', class: 'badge-danger' },
 }
 
-function formatDate(date) {
-    if (!date) return '-'
-    return new Date(date).toLocaleDateString('id-ID')
-}
-
 const columns = [
-    { field: 'id', display: '#ID' },
-    { field: 'date', display: 'Tanggal' },
+    { 
+        field: 'date', 
+        display: 'Tanggal', 
+        component: (row) => h('span', {}, formatDate(row.row.date)) 
+    },
     { field: 'theme', display: 'Tema' },
     { field: 'activity', display: 'Aktivitas' },
-    { field: 'teacher.name', display: 'Guru' },
-    { field: 'subject.name', display: 'Mata Pelajaran' },
+    { field: 'notes', display: 'Catatan' },
+    { 
+        field: 'subjects', 
+        display: 'Mata Pelajaran', 
+        component: (row) => h('span', {}, row.row.subjects.map((subject) => subject.subject.name).join(', ')) 
+    },
     { field: 'classroom.name', display: 'Kelas' },
-    { field: 'active', display: 'Status' },
     { field: 'action', display: 'Action', sortable: false },
 ]
 
@@ -51,41 +52,12 @@ const deleteItem = async (id) => {
     })
 }
 
-const addItem = () => {
-    selected.value = null
-    drawer.value = true
+const closeJournalForm = () => {
+    showJournalForm.value = false
 }
 
-const editItem = (row) => {
-    selected.value = row
-    drawer.value = true
-}
-
-const save = async (row) => {
-    alretConfirm('save').then(async (result) => {
-        if (result.isConfirmed) {
-            loading.value = true
-            let endpoint = `teacher-journals`
-            if (row.id) {
-                endpoint = `teacher-journals/${row.id}`
-            }
-            const { ok, data, error } = await apiRequest(endpoint, {
-                method: row.id ? 'put' : 'post',
-                body: row,
-            })
-
-            if (ok) {
-                alertSuccess(data.message)
-
-                drawer.value = false
-                tableRef.value?.reload()
-            } else {
-                alertError(error)
-            }
-
-            loading.value = false
-        }
-    })
+const refreshDashboard = () => {
+    tableRef.value?.reload()
 }
 </script>
 
@@ -114,26 +86,15 @@ const save = async (row) => {
             :columns="columns"
             :initial-sort="{ field: 'id', order: 'desc' }"
             :per_page="10"
-            endpoint="teacher-journals"
+            endpoint="journals"
             :loading="loading"
-            @open-drawer="addItem"
+            :extra="{
+                with: 'classroom,subjects.subject',
+            }"
+            @open-drawer="showJournalForm = true"
         >
-            <template #cell-date="{ row }">
-                {{ formatDate(row.date) }}
-            </template>
-            <template #cell-active="{ row }">
-                <StatusTag :status="row.active" :map="statusMap" />
-            </template>
             <template #cell-action="{ row }">
                 <div class="btn-group">
-                    <button
-                        v-if="checkPermission('teacher_journals.update') && row.editable == true"
-                        class="btn btn-primary btn-sm"
-                        type="button"
-                        @click.stop.prevent="editItem(row)"
-                    >
-                        <i class="fas fa-edit"></i>
-                    </button>
                     <button
                         v-if="
                             checkPermission('teacher_journals.delete') &&
@@ -149,7 +110,12 @@ const save = async (row) => {
             </template>
         </TableServerSide>
     </section>
-    <FormAdd v-model:visible="drawer" :selected="selected" @save="save" />
+    <MultiSubjectJournal 
+        v-if="showJournalForm" 
+        :visible="showJournalForm" 
+        @close="closeJournalForm"
+        @success="refreshDashboard"
+    />
 </template>
 
 <style scoped>

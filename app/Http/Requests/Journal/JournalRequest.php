@@ -24,7 +24,6 @@ class JournalRequest extends FormRequest
         return [
             'teacher_id' => 'required|exists:users,id',
             'class_id' => 'required|exists:classes,id',
-            'academic_year_id' => 'required|exists:academic_years,id',
             'date' => 'required|date',
             'theme' => 'required|string|max:255',
             'activity' => 'required|string',

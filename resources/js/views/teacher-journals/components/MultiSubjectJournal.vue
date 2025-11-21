@@ -3,6 +3,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { apiRequest } from '@/lib/apiClient'
 import { alertSuccess, alertError } from '@/lib/alert'
 import { formatDate } from '@/lib/formatters'
+import { useUser } from '../../../store'
 
 // Props
 const props = defineProps({
@@ -11,6 +12,8 @@ const props = defineProps({
         required: true
     }
 })
+
+const {user} = useUser()
 
 // Emits
 const emit = defineEmits(['close', 'success'])
@@ -39,7 +42,7 @@ const fetchTodaySubjects = async () => {
     try {
         const { ok, data } = await apiRequest('journals/today-subjects')
         if (ok) {
-            todaySubjects.value = data.subjects
+            todaySubjects.value = data.data?.subjects || []
         }
     } catch (err) {
         console.error('Error fetching today subjects:', err)
@@ -79,7 +82,10 @@ const submitJournal = async () => {
     try {
         const journalData = {
             ...journalForm.value,
-            subject_ids: selectedSubjects.value
+            subject_ids: selectedSubjects.value,
+            teacher_id: user.user.id,
+            class_id: todaySubjects.value.find(subject => subject.id === selectedSubjects.value[0])?.class_id,
+            active: true
         }
 
         const { ok, data, error } = await apiRequest('journals', {
@@ -142,7 +148,7 @@ watch(() => props.visible, (newVal) => {
                 <div class="modal-header">
                     <h4 class="modal-title">
                         <i class="fas fa-pen-fancy"></i>
-                        Input Jurnal Multi-Subject
+                        Input Jurnal
                     </h4>
                     <button type="button" @click="closeForm" class="close">
                         <span>&times;</span>
