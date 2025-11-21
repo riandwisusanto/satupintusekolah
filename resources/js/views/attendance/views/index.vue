@@ -170,7 +170,7 @@ onMounted(() => {
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6">
-                    <h4>Absensi Guru</h4>
+                    <h4 class="font-serif-formal">Absensi Guru</h4>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -193,7 +193,7 @@ onMounted(() => {
             <div v-if="showCamera" class="camera-modal">
                 <div class="camera-modal-content">
                     <div class="camera-modal-header">
-                        <h5>{{ cameraMode === 'check-in' ? 'Check-In' : 'Check-Out' }}</h5>
+                        <h5 class="font-serif-formal">{{ cameraMode === 'check-in' ? 'Check-In' : 'Check-Out' }}</h5>
                         <button @click="showCamera = false" class="btn btn-tool">
                             <i class="fas fa-times"></i>
                         </button>
@@ -207,17 +207,17 @@ onMounted(() => {
             <!-- Attendance Status Card -->
             <div v-if="!showCamera" class="row">
                 <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <i class="fas fa-user-clock"></i>
+                    <div class="card card-outline card-navy shadow-sm">
+                        <div class="card-header border-bottom-0">
+                            <h3 class="card-title font-serif-formal">
+                                <i class="fas fa-user-clock mr-1"></i>
                                 Status Absensi Hari Ini
                             </h3>
                         </div>
                         <div class="card-body text-center">
                             <div class="attendance-status">
                                 <i :class="getStatusIcon()" class="status-icon"></i>
-                                <h4>{{ currentStatus }}</h4>
+                                <h4 class="font-serif-formal">{{ currentStatus }}</h4>
                                 <p v-if="todayAttendance" class="text-muted">
                                     {{ formatDate(todayAttendance.date) }}
                                 </p>
@@ -227,18 +227,18 @@ onMounted(() => {
                                 <button 
                                     v-if="canCheckIn" 
                                     @click="openCamera('check-in')"
-                                    class="btn btn-primary btn-lg"
+                                    class="btn btn-navy btn-lg shadow-sm"
                                 >
-                                    <i class="fas fa-sign-in-alt"></i>
+                                    <i class="fas fa-sign-in-alt mr-1"></i>
                                     Check-In
                                 </button>
                                 
                                 <button 
                                     v-if="canCheckOut" 
                                     @click="openCamera('check-out')"
-                                    class="btn btn-danger btn-lg"
+                                    class="btn btn-danger btn-lg shadow-sm"
                                 >
-                                    <i class="fas fa-sign-out-alt"></i>
+                                    <i class="fas fa-sign-out-alt mr-1"></i>
                                     Check-Out
                                 </button>
                             </div>
@@ -248,15 +248,15 @@ onMounted(() => {
 
                 <!-- Today's Attendance Details -->
                 <div v-if="todayAttendance" class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <i class="fas fa-info-circle"></i>
+                    <div class="card card-outline card-navy shadow-sm">
+                        <div class="card-header border-bottom-0">
+                            <h3 class="card-title font-serif-formal">
+                                <i class="fas fa-info-circle mr-1"></i>
                                 Detail Absensi
                             </h3>
                         </div>
                         <div class="card-body">
-                            <table class="table table-sm">
+                            <table class="table table-sm ledger-table">
                                 <tr>
                                     <th>Check-In:</th>
                                     <td>{{ formatTime(todayAttendance.time_in) }}</td>
@@ -273,19 +273,19 @@ onMounted(() => {
                             
                             <!-- Photo Preview -->
                             <div v-if="todayAttendance.photo_in || todayAttendance.photo_out" class="mt-3">
-                                <h6>Foto Absensi:</h6>
+                                <h6 class="font-serif-formal">Foto Absensi:</h6>
                                 <div class="photo-preview">
                                     <img 
                                         v-if="todayAttendance.photo_in" 
                                         :src="`/storage/${todayAttendance.photo_in}`" 
                                         alt="Check-in" 
-                                        class="attendance-photo"
+                                        class="attendance-photo shadow-sm"
                                     />
                                     <img 
                                         v-if="todayAttendance.photo_out" 
                                         :src="`/storage/${todayAttendance.photo_out}`" 
                                         alt="Check-out" 
-                                        class="attendance-photo"
+                                        class="attendance-photo shadow-sm"
                                     />
                                 </div>
                             </div>

@@ -10,7 +10,7 @@ const ModelLogs = defineAsyncComponent(() => import('./logs/model.vue'))
 
 <template>
     <section class="content-header">
-        <h5 class="text-center">Developer</h5>
+        <h5 class="text-center font-serif-formal">Developer</h5>
     </section>
     <section class="content">
         <Tabs>

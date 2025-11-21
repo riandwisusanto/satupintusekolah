@@ -87,7 +87,7 @@ const save = async (row) => {
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6">
-                    <h4>Data Tahun Ajaran</h4>
+                    <h4 class="font-serif-formal">Data Tahun Ajaran</h4>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">

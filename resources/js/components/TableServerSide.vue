@@ -1,21 +1,21 @@
 <template>
-  <div class="card position-relative">
+  <div class="card card-outline card-navy position-relative shadow-sm">
     <!-- Overlay Loading -->
     <div v-if="loading" class="overlay d-flex justify-content-center align-items-center">
       <i class="fas fa-2x fa-sync-alt fa-spin"></i>
     </div>
 
     <!-- Header with Search and Action Buttons -->
-    <div class="card-header p-2 d-flex justify-content-between align-items-center flex-wrap">
+    <div class="card-header p-2 d-flex justify-content-between align-items-center flex-wrap border-bottom-0">
       <div class="d-flex align-items-center mb-2 mb-md-0 gap-2">
-        <h5>{{ props.title }}</h5>
-        <router-link v-if="props.showAddButton && props.addRoute" :to="props.addRoute" class="btn btn-primary me-2">
+        <h5 class="font-serif-formal mb-0">{{ props.title }}</h5>
+        <router-link v-if="props.showAddButton && props.addRoute" :to="props.addRoute" class="btn btn-navy btn-sm me-2 shadow-sm">
           <i class="fas fa-plus me-1"></i> Tambah Baru
         </router-link>
-        <button v-if="props.showAddButton && props.showDrawer" class="btn btn-primary me-2" @click="openDrawer">
+        <button v-if="props.showAddButton && props.showDrawer" class="btn btn-navy btn-sm me-2 shadow-sm" @click="openDrawer">
           <i class="fas fa-plus me-1"></i> Tambah Baru
         </button>
-        <button v-if="props.showExportButton" class="btn btn-success" @click="onExport" :disabled="loadingExport">
+        <button v-if="props.showExportButton" class="btn btn-success btn-sm shadow-sm" @click="onExport" :disabled="loadingExport">
           <i class="fas fa-file-export mr-1"></i> Export Data
         </button>
       </div>
@@ -32,7 +32,7 @@
 
     <!-- Table Content -->
     <div class="card-body table-responsive p-0">
-      <table class="table table-hover text-nowrap mb-0">
+      <table class="table table-hover ledger-table text-nowrap mb-0">
         <thead>
           <tr>
             <th

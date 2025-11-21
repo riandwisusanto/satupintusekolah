@@ -93,7 +93,7 @@ watch(
     <!-- Main Sidebar Container -->
     <aside
         class="main-sidebar sidebar-dark-primary elevation-4"
-        style="background: linear-gradient(to bottom, #4a90e2, #7ed6df);"
+        style="background: linear-gradient(to bottom, #001f3f, #003366);"
     >
         <!-- Brand Logo -->
         <a href="/" class="brand-link text-center">

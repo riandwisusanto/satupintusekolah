@@ -96,6 +96,6 @@ onUnmounted(() => {
 .navbar {
     background: #ffffff !important;
     color: #2d3436 !important;
-    border-bottom: 2px solid #4a90e2;
+    border-bottom: 2px solid #001f3f;
 }
 </style>

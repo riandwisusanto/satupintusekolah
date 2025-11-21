@@ -73,7 +73,7 @@ async function userLogin({ email, password }) {
 }
 </script>
 <template>
-    <section class="vh-100" style="background: linear-gradient(to bottom, #4a90e2, #7ed6df);">
+    <section class="vh-100" style="background: linear-gradient(to bottom, #001f3f, #003366);">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
                 <div class="col col-xl-10">
@@ -105,8 +105,9 @@ async function userLogin({ email, password }) {
                                             <span
                                                 class="h1 fw-bold mb-0"
                                                 style="
-                                                    font-family: 'Poppins', sans-serif;
+                                                    font-family: 'Georgia', serif;
                                                     font-size: 230%;
+                                                    color: #001f3f;
                                                 "
                                                 >SATU PINTU</span
                                             >
@@ -114,7 +115,7 @@ async function userLogin({ email, password }) {
 
                                         <hr />
 
-                                        <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px">
+                                        <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; font-family: 'Georgia', serif;">
                                             Masuk ke akun anda
                                         </h5>
 
@@ -185,11 +186,7 @@ async function userLogin({ email, password }) {
                                                 type="submit"
                                                 class="btn btn-lg w-100 d-flex justify-content-center align-items-center gap-2"
                                                 style="
-                                                    background: linear-gradient(
-                                                        90deg,
-                                                        #4a90e2 0%, /* biru sekolah / profesional */
-                                                        #7ed6df 100% /* hijau mint lembut */
-                                                    );
+                                                    background-color: #001f3f;
                                                     color: #fff;
                                                     border: none;
                                                     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
