@@ -1,85 +1,118 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { alertError } from '@/lib/alert'
 import { apiRequest } from '@/lib/apiClient'
 import dayjs from 'dayjs'
 import { useUser } from '../../../store'
+import { formatDate, formatTime } from '../../../lib/formatters'
 
 // State
-const loading = ref(false)
+const tableRef = ref()
+const showDetailModal = ref(false)
 const attendances = ref([])
-const pagination = ref({
-    current_page: 1,
-    per_page: 10,
-    total: 0,
-    last_page: 1
-})
-const {user} = useUser()
+const loading = ref(false)
+const currentFilter = ref('recent') // recent, today, week, month, all
+const { user } = useUser()
 
-// Filters
-const filters = ref({
-    month: dayjs().format('YYYY-MM'),
-    status: ''
+// Summary statistics
+const stats = ref({
+    total_days: 0,
+    absent_days: 0,
+    attendance_rate: 0
 })
 
-const statusOptions = [
-    { value: '', label: 'Semua Status' },
-    { value: 'check_in', label: 'Check-In' },
-    { value: 'check_out', label: 'Check-Out' },
-    { value: 'sick', label: 'Sakit' },
-    { value: 'permission', label: 'Izin' },
-    { value: 'on_leave', label: 'Cuti' }
+// Recent attendances (last 7 days)
+const recentAttendances = computed(() => {
+    return attendances.value.slice(0, 7)
+})
+
+// Table columns for modal
+const detailColumns = [
+    { field: 'date', display: 'Tanggal', sortable: true },
+    { field: 'time_in', display: 'In', sortable: true },
+    { field: 'time_out', display: 'Out', sortable: true },
+    { field: 'photo_in', display: 'Foto In', sortable: false },
+    { field: 'photo_out', display: 'Foto Out', sortable: false }
 ]
 
-// Computed
-const filteredAttendances = computed(() => {
-    return attendances.value.filter(attendance => {
-        const matchesMonth = attendance.date.startsWith(filters.value.month)
-        const matchesStatus = !filters.value.status || attendance.status === filters.value.status
-        return matchesMonth && matchesStatus
-    })
-})
+const calculateWorkDuration = (timeIn, timeOut) => {
+    if (!timeIn || !timeOut) return '-'
+    
+    const start = dayjs(`${dayjs().format('YYYY-MM-DD')}T${timeIn}`)
+    const end = dayjs(`${dayjs().format('YYYY-MM-DD')}T${timeOut}`)
+    
+    if (!start.isValid() || !end.isValid()) return '-'
+    
+    const diff = end.diff(start, 'minute')
+    const hours = Math.floor(diff / 60)
+    const minutes = diff % 60
+    
+    return `${hours}j ${minutes}m`
+}
 
-// Methods
-const fetchAttendanceHistory = async (page = 1) => {
-    loading.value = true
+const fetchSummaryStats = async () => {
     try {
-        const { ok, data, error } = await apiRequest(`teacher-attendances/history/${user.user.id}`)
-        
+        const { ok, data } = await apiRequest(`teacher-attendances/monthly-report?month=${dayjs().format('YYYY-MM')}`)
         if (ok) {
-            attendances.value = data.data.attendances || []
-            // pagination.value = {
-            //     current_page: data.current_page || 1,
-            //     per_page: data.per_page || 10,
-            //     total: data.total || 0,
-            //     last_page: data.last_page || 1
-            // }
-        } else {
-            alertError(error)
+            
+            const {statistics} = data.data
+            stats.value = {
+                total_days: statistics.total_days,
+                absent_days: statistics.absent_days,
+                attendance_rate: statistics.total_days > 0 ? ((statistics.total_days - statistics.absent_days) / statistics.total_days) * 100 : 0
+            }
         }
     } catch (err) {
-        alertError(err.message)
+        console.error('Error fetching stats:', err)
+    }
+}
+
+const fetchRecentAttendances = async () => {
+    loading.value = true
+    try {
+        const { ok, data } = await apiRequest(`teacher-attendances/history/${user.user.id}?per_page=7&sort_field=date&sort_order=desc`)
+        if (ok && data.data) {
+            attendances.value = data.data
+        }
+    } catch (err) {
+        console.error('Error fetching attendances:', err)
     } finally {
         loading.value = false
     }
 }
 
-const changePage = (page) => {
-    fetchAttendanceHistory(page)
+const viewDetails = () => {
+    showDetailModal.value = true
 }
 
-const formatDate = (dateString) => {
-    return dayjs(dateString).format('DD MMMM YYYY')
+const closeDetailModal = () => {
+    showDetailModal.value = false
 }
 
-const formatTime = (timeString) => {
-    if (!timeString) return '-'
-    return dayjs(timeString).format('HH:mm')
+const showPhotoModal = ref(false)
+const currentPhoto = ref({ url: '', type: '', date: '' })
+
+const viewPhoto = (photoData) => {
+    currentPhoto.value = {
+        url: `/storage/${photoData.photo}`,
+        type: photoData.type,
+        date: photoData.date || new Date().toISOString()
+    }
+    showPhotoModal.value = true
+}
+
+const closePhotoModal = () => {
+    showPhotoModal.value = false
+    currentPhoto.value = { url: '', type: '', date: '' }
+}
+
+const refreshData = () => {
+    fetchSummaryStats()
+    fetchRecentAttendances()
 }
 
 // Lifecycle
 onMounted(() => {
-    fetchAttendanceHistory()
+    refreshData()
 })
 </script>
 
@@ -102,29 +135,61 @@ onMounted(() => {
 
     <section class="content">
         <div class="container-fluid">
-            <!-- Filters -->
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-lg-4 col-6">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ stats.total_days }}</h3>
+                            <p>Hadir Bulan Ini</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-6">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ stats.absent_days || 0 }}</h3>
+                            <p>Tidak Hadir</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-user-times"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-6">
+                    <div class="small-box bg-primary">
+                        <div class="inner">
+                            <h3>{{ stats.attendance_rate || 0 }}%</h3>
+                            <p>Tingkat Kehadiran</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Filters -->
             <div class="row mb-3">
-                <div class="col-md-3">
-                    <label>Bulan:</label>
-                    <input 
-                        type="month" 
-                        v-model="filters.month" 
-                        class="form-control"
-                        @change="fetchAttendanceHistory(1)"
-                    />
-                </div>
-                <div class="col-md-3">
-                    <label>Status:</label>
-                    <select v-model="filters.status" class="form-control" @change="fetchAttendanceHistory(1)">
-                        <option v-for="option in statusOptions" :value="option.value">
-                            {{ option.label }}
-                        </option>
-                    </select>
-                </div>
-                <div class="col-md-6 text-right">
-                    <button @click="fetchAttendanceHistory(1)" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Filter
-                    </button>
+                <div class="col-12">
+                    <div class="btn-group" role="group">
+                        <button 
+                            @click="refreshData" 
+                            class="btn btn-default"
+                            :class="{ 'btn-primary': currentFilter === 'recent' }"
+                        >
+                            <i class="fas fa-history"></i> Terkini
+                        </button>
+                        <button 
+                            @click="viewDetails" 
+                            class="btn btn-default"
+                        >
+                            <i class="fas fa-list"></i> Lihat Semua
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -133,149 +198,313 @@ onMounted(() => {
                 <i class="fas fa-spinner fa-spin"></i> Memuat data...
             </div>
 
-            <!-- Attendances Table -->
+            <!-- Recent Activities Table -->
             <div v-else class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="fas fa-history"></i>
-                        History Absensi
+                        <i class="fas fa-clock"></i>
+                        Aktivitas Terkini (7 hari terakhir)
                     </h3>
                 </div>
-                <div class="card-body">
-                    <div v-if="filteredAttendances.length === 0" class="alert alert-info">
+                <div class="card-body p-0">
+                    <div v-if="recentAttendances.length === 0" class="alert alert-info m-3">
                         <i class="fas fa-info-circle"></i>
-                        Tidak ada data absensi untuk filter yang dipilih.
+                        Belum ada data absensi untuk 7 hari terakhir.
                     </div>
                     
-                    <div v-else>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Tanggal</th>
-                                        <th>Check-In</th>
-                                        <th>Check-Out</th>
-                                        <th>Durasi</th>
-                                        <th>Status</th>
-                                        <th>Foto</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="attendance in filteredAttendances" :key="attendance.id">
-                                        <td>{{ formatDate(attendance.date) }}</td>
-                                        <td>{{ formatTime(attendance.time_in) }}</td>
-                                        <td>{{ formatTime(attendance.time_out) }}</td>
-                                        <td>{{ attendance.work_duration || '-' }}</td>
-                                        <td v-html="attendance.status_badge"></td>
-                                        <td>
-                                            <div class="photo-preview-mini">
-                                                <img 
-                                                    v-if="attendance.photo_in" 
-                                                    :src="`/storage/${attendance.photo_in}`" 
-                                                    alt="Check-in" 
-                                                    class="mini-photo"
-                                                />
-                                                <img 
-                                                    v-if="attendance.photo_out" 
-                                                    :src="`/storage/${attendance.photo_out}`" 
-                                                    alt="Check-out" 
-                                                    class="mini-photo"
-                                                />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <!-- Pagination -->
-                    <div v-if="pagination.last_page > 1" class="d-flex justify-content-center mt-3">
-                        <nav>
-                            <ul class="pagination">
-                                <li 
-                                    v-for="page in pagination.last_page" 
-                                    :key="page"
-                                    :class="['page-item', { active: page === pagination.current_page }]"
-                                >
-                                    <button 
-                                        @click="changePage(page)"
-                                        :disabled="loading"
-                                        class="page-link"
-                                    >
-                                        {{ page }}
-                                    </button>
-                                </li>
-                            </ul>
-                        </nav>
+                    <div v-else class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>In</th>
+                                    <th>Out</th>
+                                    <th>Durasi</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="attendance in recentAttendances" :key="attendance.id">
+                                    <td>
+                                        <span class="badge badge-secondary">{{ formatDate(attendance.date) }}</span>
+                                    </td>
+                                    <td>{{ formatTime(attendance.time_in) }}</td>
+                                    <td>{{ formatTime(attendance.time_out) }}</td>
+                                    <td>{{ attendance.work_duration || calculateWorkDuration(attendance.time_in, attendance.time_out) }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button 
+                                                v-if="attendance.photo_in" 
+                                                @click="viewPhoto({ photo: attendance.photo_in, type: 'in', date: attendance.date })"
+                                                class="btn btn-info btn-sm"
+                                                title="Lihat Foto Check-In"
+                                            >
+                                                <i class="fas fa-camera"></i>
+                                            </button>
+                                            <button 
+                                                v-if="attendance.photo_out" 
+                                                @click="viewPhoto({ photo: attendance.photo_out, type: 'out', date: attendance.date })"
+                                                class="btn btn-warning btn-sm"
+                                                title="Lihat Foto Check-Out"
+                                            >
+                                                <i class="fas fa-camera"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Detail Modal -->
+    <div v-if="showDetailModal" class="modal fade show" style="display: block; background: rgba(0,0,0,0.5); z-index: 9999;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">
+                        Detail Absensi Lengkap
+                    </h4>
+                    <button type="button" @click="closeDetailModal" class="close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <TableServerSide
+                        ref="tableRef"
+                        title=""
+                        :columns="detailColumns"
+                        :endpoint="`teacher-attendances/history/${user.user.id}`"
+                        :initial-sort="{ field: 'date', order: 'desc' }"
+                        :per_page="10"
+                    >
+                        <template #cell-date="{ row }">
+                            {{ formatDate(row.date) }}
+                        </template>
+                        <template #cell-time_in="{ row }">
+                            {{ formatTime(row.time_in) }}
+                        </template>
+                        <template #cell-time_out="{ row }">
+                            {{ formatTime(row.time_out) }}
+                        </template>
+                        <template #cell-photo_in="{ row }">
+                            <img v-if="row.photo_in" :src="`/storage/${row.photo_in}`" class="mini-photo" />
+                            <span v-else>-</span>
+                        </template>
+                        <template #cell-photo_out="{ row }">
+                            <img v-if="row.photo_out" :src="`/storage/${row.photo_out}`" class="mini-photo" />
+                            <span v-else>-</span>
+                        </template>
+                    </TableServerSide>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Viewer Modal -->
+    <div v-if="showPhotoModal" class="modal fade show" style="display: block; background: rgba(0,0,0,0.8); z-index: 9999;">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">
+                        <i class="fas fa-camera"></i>
+                        {{ currentPhoto.type === 'in' ? 'Foto Check-In' : 'Foto Check-Out' }}
+                    </h4>
+                    <button type="button" @click="closePhotoModal" class="close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="photo-container">
+                        <img 
+                            :src="currentPhoto.url" 
+                            :alt="`${currentPhoto.type === 'in' ? 'Check-In' : 'Check-Out'} Photo`" 
+                            class="attendance-photo-large"
+                        />
+                    </div>
+                    <div class="photo-info mt-3">
+                        <p><strong>Tipe:</strong> {{ currentPhoto.type === 'in' ? 'Check-In' : 'Check-Out' }}</p>
+                        <p><strong>Tanggal:</strong> {{ formatDate(currentPhoto.date) }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <style scoped>
-.photo-preview-mini {
-    display: flex;
-    gap: 0.25rem;
-}
-
 .mini-photo {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     object-fit: cover;
     border-radius: 4px;
     border: 1px solid #dee2e6;
 }
 
-.pagination {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.btn-group-sm > .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
 }
 
-.page-item {
-    margin: 0 0.25rem;
-}
-
-.page-link {
-    padding: 0.5rem 0.75rem;
-    border: 1px solid #dee2e6;
-    background: white;
-    color: #007bff;
-    cursor: pointer;
-    border-radius: 0.25rem;
-    transition: all 0.2s;
-}
-
-.page-link:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
-}
-
-.page-item.active .page-link {
-    background: #007bff;
+.badge-secondary {
+    background-color: #6c757d;
     color: white;
-    border-color: #007bff;
 }
 
-.page-link:disabled {
-    cursor: not-allowed;
+/* Photo Viewer Styles */
+.photo-container {
+    max-height: 70vh;
+    overflow: auto;
+    text-align: center;
+}
+
+.attendance-photo-large {
+    max-width: 100%;
+    max-height: 60vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.photo-info {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 15px;
+}
+
+.photo-info p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    outline: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px 20px 280px; /* Top padding untuk topbar, left padding untuk sidebar */
+    box-sizing: border-box;
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 0;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.3rem;
+    outline: 0;
+}
+
+.modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    border-top-left-radius: calc(0.3rem - 1px);
+    border-top-right-radius: calc(0.3rem - 1px);
+}
+
+.modal-title {
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1rem;
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.close {
+    float: right;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
     opacity: 0.5;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #000;
+    text-decoration: none;
+    opacity: 0.75;
 }
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-    .photo-preview-mini {
-        flex-direction: column;
-        gap: 0.5rem;
+    .modal {
+        padding: 60px 10px 10px 10px; /* Reduced padding for mobile */
+    }
+    
+    .modal-dialog {
+        max-width: 95%;
+        margin: 0;
     }
     
     .mini-photo {
-        width: 60px;
-        height: 60px;
+        width: 25px;
+        height: 25px;
+    }
+    
+    .btn-group-sm > .btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.8rem;
+    }
+    
+    .attendance-photo-large {
+        max-height: 50vh;
+    }
+    
+    .photo-info {
+        padding: 10px;
+    }
+    
+    .small-box {
+        margin-bottom: 1rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.5rem;
     }
 }
 </style>

@@ -150,15 +150,14 @@ class TeacherAttendanceController extends Controller
         }
     }
 
-    public function getAttendanceHistory($teacher_id)
+    public function getAttendanceHistory(Request $request, $teacher_id = null)
     {
+        $datas = ApiQueryHelper::apply(
+            TeacherAttendance::query(),
+            TeacherAttendance::apiQueryConfig()
+        );
         try {
-            $attendances = TeacherAttendance::with(['teacher'])
-                ->byTeacher($teacher_id)
-                ->orderBy('date', 'desc')
-                ->paginate(20);
-
-            return apiResponse('History kehadiran', ['attendances' => $attendances]);
+            return $datas;
         } catch (\Throwable $th) {
             return apiResponse($th->getMessage(), null, 500);
         }

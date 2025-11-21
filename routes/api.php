@@ -38,7 +38,7 @@ Route::prefix('v1')
             Route::post('teacher-attendances/{id}/check-out', [\App\Http\Controllers\Api\v1\TeacherAttendanceController::class, 'checkOut']);
             Route::post('teacher-attendances/sick-leave', [\App\Http\Controllers\Api\v1\TeacherAttendanceController::class, 'createSickOrLeave']);
             Route::get('teacher-attendances/today/{teacher_id?}', [\App\Http\Controllers\Api\v1\TeacherAttendanceController::class, 'getTodayAttendance']);
-            Route::get('teacher-attendances/history/{teacher_id}', [\App\Http\Controllers\Api\v1\TeacherAttendanceController::class, 'getAttendanceHistory']);
+            Route::get('teacher-attendances/history/{teacher_id?}', [\App\Http\Controllers\Api\v1\TeacherAttendanceController::class, 'getAttendanceHistory']);
             Route::get('teacher-attendances/monthly-report', [\App\Http\Controllers\Api\v1\TeacherAttendanceController::class, 'getMonthlyReport']);
             Route::get('teacher-attendances/teacher/{teacher_id}/date/{date}', [\App\Http\Controllers\Api\v1\TeacherAttendanceController::class, 'getByTeacherAndDate']);
 

@@ -5,8 +5,8 @@ export const AttendanceRoutes = [
         component: () => import('./views/index.vue'),
     },
     {
-        path: 'attendance/teacher/history',
-        name: 'attendance.teacher.history',
+        path: 'attendance/history',
+        name: 'attendance.history',
         component: () => import('./views/history.vue'),
     }
 ]

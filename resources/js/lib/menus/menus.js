@@ -71,7 +71,7 @@ export const sidebarMenus = [
                 key: 'attendance-history',
                 label: 'History',
                 icon: 'fas fa-history',
-                to: '/attendance/teacher/history',
+                to: '/attendance/history',
                 permission: 'attendance.teacher.history',
             }
         ]
