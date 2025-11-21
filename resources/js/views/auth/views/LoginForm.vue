@@ -83,7 +83,7 @@ async function userLogin({ email, password }) {
                                 <img
                                     src="/public/assets/images/pngegg.png"
                                     alt="login form"
-                                    class="img-fluid p-4"
+                                    class="img-fluid p-4 p-lg-5 d-flex align-items-center mt-10"
                                     style="border-radius: 1rem 0 0 1rem"
                                 />
                             </div>
