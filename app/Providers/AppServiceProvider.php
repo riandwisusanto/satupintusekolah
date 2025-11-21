@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Auto-copy storage/app/public -> public_html/storage
         $from = storage_path('app/public');
-        $to = base_path('../public_html/storage');
+        $to = base_path('../storage');
 
         if (!File::exists($to)) {
             File::makeDirectory($to, 0755, true);
