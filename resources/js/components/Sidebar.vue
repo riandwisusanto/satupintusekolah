@@ -98,7 +98,7 @@ watch(
         <!-- Brand Logo -->
         <a href="/" class="brand-link text-center">
             <img
-                src="/public/assets/images/logo-satupintu.png"
+                src="/public/assets/images/logo-jago.png"
                 alt="Logo"
                 class="brand-image elevation-3"
             />

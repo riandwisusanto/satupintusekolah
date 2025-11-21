@@ -98,8 +98,8 @@ async function userLogin({ email, password }) {
                                     >
                                         <div class="d-flex align-items-center mb-3 pb-1">
                                             <img
-                                                src="/public/assets/images/logo-satupintu.png"
-                                                style="width: 50px; margin-right: 20px"
+                                                src="/public/assets/images/logo-jago.png"
+                                                style="width: 120px; "
                                                 alt="logo"
                                             />
                                             <span
@@ -109,14 +109,14 @@ async function userLogin({ email, password }) {
                                                     font-size: 230%;
                                                     color: #001f3f;
                                                 "
-                                                >SATU PINTU</span
+                                                >ADA JAGO</span
                                             >
                                         </div>
 
                                         <hr />
 
-                                        <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; font-family: 'Georgia', serif;">
-                                            Masuk ke akun anda
+                                        <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px; font-family: 'Georgia', serif; font-size: 18px">
+                                            Aplikasi Digital Absensi & Jurnal Guru Online
                                         </h5>
 
                                         <div data-mdb-input-init class="form-outline mb-4">

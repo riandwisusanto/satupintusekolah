@@ -6,7 +6,7 @@
 
         <title>Management Sekolah</title>
             @vite(['resources/css/app.css'])
-        <link rel="shortcut icon" href="{{ asset('assets/images/logo-satupintu.png') }}" type="image/x-icon">
+        <link rel="shortcut icon" href="{{ asset('assets/images/logo-jago.png') }}" type="image/x-icon">
         
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
      
