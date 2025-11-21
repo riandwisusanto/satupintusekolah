@@ -86,6 +86,13 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.main-header {
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
 .navbar {
     background: #ffffff !important;
     color: #2d3436 !important;

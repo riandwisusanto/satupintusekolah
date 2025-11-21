@@ -5,7 +5,7 @@ const routes = [
         path: '/teacher-journals',
         name: 'teacher-journals',
         component: Index,
-    }
+    },
 ]
 
 export default routes

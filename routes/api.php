@@ -31,6 +31,9 @@ Route::prefix('v1')
             Route::apiResource('academic-years', \App\Http\Controllers\Api\v1\AcademicYearController::class);
             Route::get('schedules/today', [\App\Http\Controllers\Api\v1\ScheduleController::class, 'today']);
             Route::apiResource('schedules', \App\Http\Controllers\Api\v1\ScheduleController::class);
+            // Teacher Dashboard Custom Routes
+            Route::get('journals/teacher-dashboard', [\App\Http\Controllers\Api\v1\JournalController::class, 'teacherDashboard']);
+            Route::get('journals/today-subjects', [\App\Http\Controllers\Api\v1\JournalController::class, 'todaySubjects']);
             Route::apiResource('journals', \App\Http\Controllers\Api\v1\JournalController::class);
             Route::apiResource('student-attendances', \App\Http\Controllers\Api\v1\StudentAttendanceController::class);
             // Teacher Attendance Custom Routes (Must be BEFORE resource route)
