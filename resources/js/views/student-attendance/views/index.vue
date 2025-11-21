@@ -68,6 +68,11 @@ const selectedSchedule = computed(() => {
     return classOptions.value.find(s => s.id === selectedClass.value)
 })
 
+const hasExistingAttendance = computed(() => {
+    // Check if any student has existing attendance data
+    return students.value.some(student => student.attendance_id)
+})
+
 // Fetch today's schedules
 const fetchTodaySchedules = async () => {
     try {
@@ -88,17 +93,21 @@ const fetchTodaySchedules = async () => {
 
 // Fetch students data
 const fetchStudentsData = async () => {
-    if (!selectedClass.value) return
+    if (!selectedClass.value) {
+        students.value = []
+        return
+    }
 
     loading.value = true
     try {
-        const classId = isHomeroomTeacher.value 
-            ? selectedClass.value 
-            : selectedSchedule.value?.classId
+        // const classId = isHomeroomTeacher.value 
+        //     ? selectedClass.value 
+        //     : selectedSchedule.value?.classId
+        const classId = selectedSchedule.value?.classId
 
         if (!classId) return
 
-        const { ok, data } = await apiRequest(`students?class_id=${classId}`)
+        const { ok, data } = await apiRequest(`students?filter[class_id]=${classId}`)
         if (ok) {
             students.value = (data.data || []).map(student => ({
                 ...student,
@@ -108,6 +117,18 @@ const fetchStudentsData = async () => {
         }
     } catch (err) {
         console.error('Error fetching students:', err)
+        let errorMessage = 'Gagal memuat data siswa'
+        
+        if (err.response?.status === 404) {
+            errorMessage = 'Kelas tidak ditemukan'
+        } else if (err.response?.status === 403) {
+            errorMessage = 'Anda tidak memiliki akses ke kelas ini'
+        } else if (err.message) {
+            errorMessage = err.message
+        }
+        
+        alertError(errorMessage)
+        students.value = []
     } finally {
         loading.value = false
     }
