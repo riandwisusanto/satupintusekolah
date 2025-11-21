@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\v1\AuthController;
 use App\Http\Controllers\Api\v1\ConfigurationSettingController;
 use App\Http\Middleware\LogRequestToDB;
 use App\Http\Middleware\SetLocaleMiddleware;
