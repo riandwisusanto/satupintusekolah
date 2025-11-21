@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\File;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->app->bind('path.public', function () {
+            return base_path('../public_html');
+        });
+
+        // Auto-copy storage/app/public -> public_html/storage
+        $from = storage_path('app/public');
+        $to = base_path('../public_html/storage');
+
+        if (!File::exists($to)) {
+            File::makeDirectory($to, 0755, true);
+        }
+
+        File::copyDirectory($from, $to);
     }
 }
