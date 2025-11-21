@@ -8,8 +8,13 @@ use App\Http\Requests\StudentAttendance\StudentAttendanceRequest;
 use App\Models\StudentAttendance;
 use App\Models\StudentAttendanceSubject;
 use App\Models\StudentAttendanceDetail;
+use App\Models\Student;
+use App\Models\Classroom;
+use App\Models\AcademicYear;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class StudentAttendanceController extends Controller
 {
@@ -163,6 +168,133 @@ class StudentAttendanceController extends Controller
             }
 
             return apiResponse('Data siswa per tanggal', ['students' => $students]);
+        } catch (\Throwable $th) {
+            return apiResponse($th->getMessage(), null, 500);
+        }
+    }
+
+    public function getTeacherAttendanceData(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $date = $request->get('date', Carbon::now()->format('Y-m-d'));
+            $classId = $request->get('class_id');
+
+            // Get today's schedule for teacher
+            $todaySchedule = Schedule::where('teacher_id', $user->id)
+                ->where('day', strtolower(Carbon::parse($date)->format('l')))
+                ->with(['classroom', 'subject'])
+                ->get();
+
+            // Get students based on class
+            $students = [];
+            $selectedClass = null;
+            $existingAttendance = null;
+
+            if ($classId) {
+                $selectedClass = Classroom::find($classId);
+                $students = Student::where('class_id', $classId)
+                    ->orderBy('name')
+                    ->get();
+
+                // Check if attendance already exists
+                $existingAttendance = StudentAttendance::with(['details'])
+                    ->where('teacher_id', $user->id)
+                    ->where('class_id', $classId)
+                    ->where('date', $date)
+                    ->first();
+            }
+
+            return apiResponse('Data absensi guru', [
+                'date' => $date,
+                'today_schedule' => $todaySchedule,
+                'selected_class' => $selectedClass,
+                'students' => $students,
+                'existing_attendance' => $existingAttendance,
+                'academic_year' => AcademicYear::where('active', true)->first()
+            ]);
+        } catch (\Throwable $th) {
+            return apiResponse($th->getMessage(), null, 500);
+        }
+    }
+
+    public function saveClassAttendance(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $user = $request->user();
+            $data = $request->all();
+            $date = $data['date'];
+            $classId = $data['class_id'];
+            $students = $data['students'];
+
+            // Check if attendance already exists
+            $existingAttendance = StudentAttendance::where('teacher_id', $user->id)
+                ->where('class_id', $classId)
+                ->where('date', $date)
+                ->first();
+
+            $academicYear = AcademicYear::where('active', true)->first();
+
+            $attendanceData = [
+                'teacher_id' => $user->id,
+                'class_id' => $classId,
+                'academic_year_id' => $academicYear->id,
+                'date' => $date
+            ];
+
+            if ($existingAttendance) {
+                $existingAttendance->update($attendanceData);
+                $studentAttendance = $existingAttendance;
+
+                // Delete existing details
+                StudentAttendanceDetail::where('student_attendance_id', $existingAttendance->id)->delete();
+            } else {
+                $studentAttendance = StudentAttendance::create($attendanceData);
+            }
+
+            // Create attendance details for each student
+            foreach ($students as $studentData) {
+                StudentAttendanceDetail::create([
+                    'student_attendance_id' => $studentAttendance->id,
+                    'student_id' => $studentData['student_id'],
+                    'status' => $studentData['status'],
+                    'note' => $studentData['note'] ?? null
+                ]);
+            }
+
+            DB::commit();
+            return apiResponse('Absensi siswa berhasil disimpan', [
+                'student_attendance' => $studentAttendance->load('details.student')
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return apiResponse($th->getMessage(), null, 500);
+        }
+    }
+
+    public function getTodayClasses(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $today = Carbon::now()->format('l');
+
+            // Get today's classes from schedule
+            $todayClasses = Schedule::where('teacher_id', $user->id)
+                ->where('day', strtolower($today))
+                ->with('classroom')
+                ->distinct('class_id')
+                ->get()
+                ->map(function ($schedule) {
+                    return [
+                        'id' => $schedule->classroom->id,
+                        'name' => $schedule->classroom->name,
+                        'subject' => $schedule->subject->name ?? null,
+                        'time' => $schedule->start_time . ' - ' . $schedule->end_time
+                    ];
+                });
+
+            return apiResponse('Data kelas hari ini', ['classes' => $todayClasses]);
         } catch (\Throwable $th) {
             return apiResponse($th->getMessage(), null, 500);
         }

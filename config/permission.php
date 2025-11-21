@@ -38,4 +38,6 @@ return [
     'teacher_journals.delete',
 
     'schedules.view',
+
+    'student_attendances.view'
 ];

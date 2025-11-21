@@ -26,7 +26,11 @@ class StudentAttendanceRequest extends FormRequest
             'date' => [
                 'required',
                 'date',
-                Rule::unique('student_attendances', 'date')->ignore($this->route('id') ?? $this->route('student_attendance')),
+                Rule::unique('student_attendances', 'date')
+                    ->where(function ($query) {
+                        return $query->where('class_id', request('class_id'));
+                    })
+                    ->ignore($this->route('id') ?? $this->route('student_attendance')),
             ],
             'teacher_id' => 'required|exists:users,id',
             'class_id' => 'required|exists:classes,id',
@@ -44,7 +48,11 @@ class StudentAttendanceRequest extends FormRequest
             $rules['date'] = [
                 'required',
                 'date',
-                Rule::unique('student_attendances', 'date')->ignore($this->route('id') ?? $this->route('student_attendance')),
+                Rule::unique('student_attendances', 'date')
+                    ->where(function ($query) {
+                        return $query->where('class_id', request('class_id'));
+                    })
+                    ->ignore($this->route('id') ?? $this->route('student_attendance')),
             ];
         }
 

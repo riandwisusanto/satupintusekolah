@@ -15,6 +15,7 @@
             :is-disabled="disabled"
             :is-loading="loading"
             :reduce="(opt) => opt.value"
+            :teleport="teleport"
             label="label"
             @open="ensureLoaded"
             @search="handleSearch"
@@ -81,6 +82,10 @@ const props = defineProps({
     labelFormatter: {
         type: Function,
         default: null,
+    },
+    teleport: {
+        type: String,
+        default: undefined,
     },
 })
 

@@ -35,6 +35,11 @@ Route::prefix('v1')
             Route::get('journals/teacher-dashboard', [\App\Http\Controllers\Api\v1\JournalController::class, 'teacherDashboard']);
             Route::get('journals/today-subjects', [\App\Http\Controllers\Api\v1\JournalController::class, 'todaySubjects']);
             Route::apiResource('journals', \App\Http\Controllers\Api\v1\JournalController::class);
+
+            // Student Attendance Custom Routes
+            Route::get('student-attendances/teacher-data', [\App\Http\Controllers\Api\v1\StudentAttendanceController::class, 'getTeacherAttendanceData']);
+            Route::post('student-attendances/save-class', [\App\Http\Controllers\Api\v1\StudentAttendanceController::class, 'saveClassAttendance']);
+            Route::get('student-attendances/today-classes', [\App\Http\Controllers\Api\v1\StudentAttendanceController::class, 'getTodayClasses']);
             Route::apiResource('student-attendances', \App\Http\Controllers\Api\v1\StudentAttendanceController::class);
             // Teacher Attendance Custom Routes (Must be BEFORE resource route)
             Route::post('teacher-attendances/check-in', [\App\Http\Controllers\Api\v1\TeacherAttendanceController::class, 'checkIn']);

@@ -84,6 +84,13 @@ export const sidebarMenus = [
         permission: 'schedules.view',
     },
     {
+        key: 'student-attendance',
+        label: 'Absensi Siswa',
+        icon: 'fas fa-user-graduate',
+        to: '/student-attendance',
+        permission: 'student_attendances.view',
+    },
+    {
         key: 'teacher-journals',
         label: 'Jurnal Guru',
         icon: 'fas fa-journal-whills',

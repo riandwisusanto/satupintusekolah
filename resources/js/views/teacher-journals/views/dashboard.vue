@@ -205,8 +205,8 @@ const quickAction = (action) => {
                                     
                                     <!-- View Schedule -->
                                     <div class="col-md-3 col-sm-6 mb-3">
-                                        <button class="btn btn-lg btn-info btn-block" @click.prevent="quickAction('schedule')">
-                                            <i class="fas fa-calendar-alt fa-2x"></i><br>
+                                        <button class="btn btn-lg btn-info btn-block">
+                                            <i class="fas fa-calendar-alt fa-2x mb-2"></i><br>
                                             Lihat Jadwal<br>
                                             <small>{{ todaySchedule.length }} Kelas Hari Ini</small>
                                         </button>
@@ -214,11 +214,11 @@ const quickAction = (action) => {
                                     
                                     <!-- Attendance -->
                                     <div class="col-md-3 col-sm-6 mb-3">
-                                        <button class="btn btn-lg btn-warning btn-block">
-                                            <i class="fas fa-user-check fa-2x"></i><br>
+                                        <a href="/student-attendance" class="btn btn-lg btn-warning btn-block">
+                                            <i class="fas fa-user-check fa-2x mb-2"></i><br>
                                             Absen Siswa<br>
                                             <small>{{ isHomeroomTeacher ? dashboardData.user.homeroom_class?.name : 'Semua Kelas' }}</small>
-                                        </button>
+                                        </a>
                                     </div>
                                     
                                     <!-- Journal History -->
