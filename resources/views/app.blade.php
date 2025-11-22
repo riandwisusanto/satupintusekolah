@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Management Sekolah</title>
+        <title>{{ config('app.name', 'Laravel') }}</title>
             @vite(['resources/css/app.css'])
         <link rel="shortcut icon" href="{{ asset('assets/images/logo-jago.png') }}" type="image/x-icon">
         

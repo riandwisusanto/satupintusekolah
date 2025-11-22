@@ -10,6 +10,7 @@ const menus = credential.menus
 const { startWithPermission } = usePermission()
 const route = useRoute()
 const openMenu = ref('')
+const appName = import.meta.env.VITE_APP_NAME
 
 function filterMenus(items) {
     return items
@@ -102,7 +103,7 @@ watch(
                 alt="Logo"
                 class="brand-image elevation-3"
             />
-            <span class="brand-text font-weight-light text-white"><b>Satu Pintu Sekolah</b></span>
+            <span class="brand-text font-weight-light text-white"><b>{{ appName }}</b></span>
         </a>
 
         <!-- Sidebar -->
