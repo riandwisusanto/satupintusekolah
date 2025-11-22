@@ -121,7 +121,7 @@ const resetFilters = () => {
                 </template>
 
                 <!-- Month Filter -->
-                <div v-if="filterType === 'month'" class="col-md-12">
+                <div v-if="filterType === 'month'" class="col-md-6">
                     <div class="form-group">
                         <label for="month">
                             <i class="fas fa-calendar mr-1"></i>
@@ -137,7 +137,7 @@ const resetFilters = () => {
                 </div>
 
                 <!-- Academic Year Filter -->
-                <div v-if="filterType === 'academic_year' && showAcademicYearFilter" class="col-md-12">
+                <div v-if="filterType === 'academic_year' && showAcademicYearFilter" class="col-md-6">
                     <SelectServerSide
                         v-model="filters.academic_year_id"
                         label="Tahun Ajaran"
@@ -151,7 +151,7 @@ const resetFilters = () => {
                 </div>
 
                 <!-- Teacher Filter -->
-                <div v-if="showTeacherFilter" class="col-md-12">
+                <div v-if="showTeacherFilter" class="col-md-6">
                     <SelectServerSide
                         v-model="filters.teacher_id"
                         label="Filter Guru (Opsional)"

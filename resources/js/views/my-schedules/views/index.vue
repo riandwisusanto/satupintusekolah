@@ -10,6 +10,7 @@ const showAll = ref(false)
 const columns = [
     { field: 'classroom.name', display: 'Kelas' },
     { field: 'subject.name', display: 'Mata Pelajaran' },
+    { field: 'teacher.name', display: 'Guru' },
     { field: 'day', display: 'Hari' },
     { field: 'start_time', display: 'Jam Mulai', component:({ row }) => h('span', {}, formatTime(row.start_time)) },
     { field: 'end_time', display: 'Jam Selesai', component:({ row }) => h('span', {}, formatTime(row.end_time)) },

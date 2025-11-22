@@ -22,7 +22,6 @@ const statusOptions = [
     { value: 'alpa', label: 'Alpa', color: 'danger' }
 ]
 
-// TableServerSide columns
 const columns = [
     {
         field: 'student_name',
@@ -51,7 +50,6 @@ const isHomeroomTeacher = computed(() => {
 })
 
 const classOptions = computed(() => {
-    // Group schedules by class for homeroom teachers
     if (isHomeroomTeacher.value) {
         const classMap = new Map()
         todaySchedules.value.forEach(schedule => {
@@ -61,6 +59,8 @@ const classOptions = computed(() => {
                 classMap.set(schedule.classroom.id, {
                     id: schedule.classroom.id,
                     name: schedule.classroom.name,
+                    value: schedule.classroom.id,
+                    label: schedule.classroom.name,
                     subjects: []
                 })
             }
@@ -107,11 +107,10 @@ const studentsWithRowNumber = computed(() => {
 // Fetch today's schedules
 const fetchTodaySchedules = async () => {
     try {
-        const { ok, data } = await apiRequest(`schedules/today?date=${selectedDate.value}`)
+        const { ok, data } = await apiRequest(`schedules/today?date=${selectedDate.value}&all=true`)
         if (ok) {
             todaySchedules.value = data.data || []
             
-            // Auto-select first option if none selected
             if (!selectedClass.value && classOptions.value.length > 0) {
                 selectedClass.value = classOptions.value[0].id
                 await fetchStudentsData()
@@ -131,10 +130,10 @@ const fetchStudentsData = async () => {
 
     loading.value = true
     try {
-        // const classId = isHomeroomTeacher.value 
-        //     ? selectedClass.value 
-        //     : selectedSchedule.value?.classId
-        const classId = selectedSchedule.value?.classId
+        const classId = isHomeroomTeacher.value 
+            ? selectedClass.value 
+            : selectedSchedule.value?.classId
+        // const classId = selectedSchedule.value?.classId
 
         if (!classId) return
 

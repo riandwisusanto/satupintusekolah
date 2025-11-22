@@ -92,14 +92,12 @@ class ScheduleController extends Controller
             $query->where('teacher_id', auth()->user()->id);
         })->where('day', $dbDay);
 
-        // Filter out schedules that already have attendance for given date
         $query->whereNotIn('id', function ($subQuery) use ($date) {
             $subQuery->select('schedules.id')
                 ->from('schedules')
                 ->join('student_attendance_subjects', 'schedules.subject_id', '=', 'student_attendance_subjects.subject_id')
                 ->join('student_attendances', 'student_attendance_subjects.student_attendance_id', '=', 'student_attendances.id')
-                ->where('student_attendances.date', $date)
-                ->where('student_attendances.teacher_id', auth()->user()->id);
+                ->where('student_attendances.date', $date);
         });
 
         $datas = ApiQueryHelper::apply($query, Schedule::apiQueryConfig());

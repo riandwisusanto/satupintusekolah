@@ -22,13 +22,22 @@ class Schedule extends Model
         'end_time',
     ];
 
-    protected $appends = ['editable', 'deleteable'];
+    protected $appends = ['is_homeroom', 'editable', 'deleteable'];
 
     protected $casts = [
         'teacher_id' => 'integer',
         'subject_id' => 'integer',
         'class_id' => 'integer',
     ];
+
+    public function getIsHomeroomAttribute(): bool
+    {
+        $classroom = $this->classroom;
+        if ($classroom && $classroom->teacher_id === auth()->id()) {
+            return true;
+        }
+        return false;
+    }
 
     public function getEditableAttribute(): bool
     {

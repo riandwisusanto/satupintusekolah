@@ -74,6 +74,13 @@ const fetchReport = async (page = 1) => {
     }
 }
 
+const attendanceFilters = computed(() => {
+    if (!filters.value.class_id) {
+        return attendances.value
+    }
+    return attendances.value.filter((row) => row.class_id === filters.value.class_id)
+})
+
 const fetchSummary = async () => {
     try {
         const params = { ...filters.value }
@@ -130,10 +137,10 @@ const goToPage = (page) => {
 const getRowStats = (details) => {
     if (!details) return { present: 0, sick: 0, permission: 0, absent: 0 }
     return {
-        present: details.filter(d => d.status === 'present').length,
-        sick: details.filter(d => d.status === 'sick').length,
-        permission: details.filter(d => d.status === 'permission').length,
-        absent: details.filter(d => d.status === 'absent').length,
+        present: details.filter(d => d.status === 'hadir').length,
+        sick: details.filter(d => d.status === 'sakit').length,
+        permission: details.filter(d => d.status === 'ijin').length,
+        absent: details.filter(d => d.status === 'alpa').length,
     }
 }
 
@@ -147,11 +154,9 @@ const activeFilters = computed(() => {
 onMounted(() => {
     // Set default date range to current month
     const now = new Date()
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
     
-    filters.value.start_date = firstDay.toISOString().split('T')[0]
-    filters.value.end_date = lastDay.toISOString().split('T')[0]
+    filters.value.start_date = now.toISOString().split('T')[0]
+    filters.value.end_date = now.toISOString().split('T')[0]
     
     applyFilters()
 })
@@ -184,7 +189,7 @@ onMounted(() => {
             />
 
             <!-- Additional Filters -->
-            <div class="row mt-3">
+            <!-- <div class="row mt-3">
                 <div class="col-md-12">
                     <SelectServerSide
                         v-model="filters.class_id"
@@ -192,12 +197,12 @@ onMounted(() => {
                         name="class_id"
                         placeholder="Semua Kelas"
                         :serverside="true"
-                        endpoint="classrooms"
+                        endpoint="classrooms?all=true"
                         label-key="name"
                         value-key="id"
                     />
                 </div>
-            </div>
+            </div> -->
 
             <!-- Summary Cards -->
             <div v-if="hasData" class="row mt-4">
@@ -286,7 +291,7 @@ onMounted(() => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(item, index) in attendances" :key="item.id">
+                                    <tr v-for="(item, index) in attendanceFilters" :key="item.id">
                                         <td class="text-center">
                                             {{ (pagination.current_page - 1) * pagination.per_page + index + 1 }}
                                         </td>
@@ -316,7 +321,7 @@ onMounted(() => {
 
                             <!-- Empty State -->
                             <div v-else class="text-center p-5">
-                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"> Data Kosong</i>
                                 <p class="text-muted">
                                     {{ activeFilters ? 'Tidak ada data untuk filter yang dipilih' : 'Silakan pilih filter dan klik "Tampilkan Laporan"' }}
                                 </p>
