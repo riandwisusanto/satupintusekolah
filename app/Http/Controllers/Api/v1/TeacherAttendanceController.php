@@ -124,6 +124,10 @@ class TeacherAttendanceController extends Controller
             'notes' => 'nullable|string|max:255',
         ]);
 
+        // Set time_in and time_out to null for absence records
+        $validated['time_in'] = null;
+        $validated['time_out'] = null;
+
         try {
             $teacherAttendance = TeacherAttendance::create($validated);
 

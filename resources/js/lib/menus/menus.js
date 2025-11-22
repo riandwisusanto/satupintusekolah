@@ -73,6 +73,13 @@ export const sidebarMenus = [
                 icon: 'fas fa-history',
                 to: '/attendance/history',
                 permission: 'attendance.teacher.history',
+            },
+            {
+                key: 'attendance-absence',
+                label: 'Ketidakhadiran Guru',
+                icon: 'fas fa-user-times',
+                to: '/attendance/absence',
+                permission: 'attendance.teacher.absence',
             }
         ]
     },

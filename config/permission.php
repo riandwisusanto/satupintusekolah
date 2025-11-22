@@ -31,6 +31,7 @@ return [
 
     'attendance.teacher.view',
     'attendance.teacher.history',
+    'attendance.teacher.absence',
 
     'teacher_journals.view',
     'teacher_journals.create',
