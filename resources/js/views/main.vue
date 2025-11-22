@@ -23,11 +23,12 @@ const me = async () => {
         return
     }
 
-    const { user } = data.data
+    const { user } = data.data    
     credential.setUser({
         user: user,
         permissions: user.permissions
     })
+    
 
     loading.value = false
 }

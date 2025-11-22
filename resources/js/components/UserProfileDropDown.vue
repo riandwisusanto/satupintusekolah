@@ -11,7 +11,7 @@
                 alt="User Image"
                 style="width: 32px; height: 32px; object-fit: cover"
             />
-            <span class="d-none d-md-inline">{{ user.name }}</span>
+            <span class="d-none d-md-inline">{{ user.user.name }}</span>
         </a>
 
         <ul class="dropdown-menu dropdown-menu-right">
@@ -21,8 +21,8 @@
             >
                 <img :src="photo" class="rounded-circle shadow" alt="User Image" />
                 <p style="color: white" class="mt-2 text-center">
-                    {{ user.name }} <br />
-                    <small>{{ user.email }}</small>
+                    {{ user.user.name }} <br />
+                    <small>{{ user.user.email }}</small>
                 </p>
             </li>
 

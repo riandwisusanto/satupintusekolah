@@ -43,7 +43,7 @@ defineExpose({ start, finish })
     top: 0;
     left: 0;
     height: 3px;
-    background: rgb(34, 221, 109);
+    background: rgba(255, 255, 255, 0.2);
     z-index: 9999;
 }
 </style>
