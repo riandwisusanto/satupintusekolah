@@ -143,8 +143,8 @@
                     <td style="text-align: center;">
                         @php
                             $statusMap = [
-                                'check_in' => ['label' => 'Masuk', 'class' => 'status-present'],
-                                'check_out' => ['label' => 'Pulang', 'class' => 'status-present'],
+                                'check_in' => ['label' => 'Hadir', 'class' => 'status-present'],
+                                'check_out' => ['label' => 'Hadir', 'class' => 'status-present'],
                                 'sick' => ['label' => 'Sakit', 'class' => 'status-sick'],
                                 'permission' => ['label' => 'Izin', 'class' => 'status-permission'],
                                 'on_leave' => ['label' => 'Cuti', 'class' => 'status-leave'],

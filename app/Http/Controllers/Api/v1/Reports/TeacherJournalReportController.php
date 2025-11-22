@@ -135,7 +135,7 @@ class TeacherJournalReportController extends Controller
                     'month' => $request->month,
                     'teacher_name' => $request->teacher_id ? User::find($request->teacher_id)?->name : 'Semua Guru',
                 ],
-                'generated_at' => now()->format('d M Y H:i:s'),
+                'generated_at' => now()->format('d/M/Y H:i:s'),
             ];
 
             $pdf = Pdf::loadView('reports.teacher-journal-pdf', $data);

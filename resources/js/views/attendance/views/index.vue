@@ -20,7 +20,7 @@ const capturedImage = ref('')
 
 // Computed
 const canCheckIn = computed(() => {
-    return !todayAttendance.value || todayAttendance.value.status === 'check_out'
+    return !todayAttendance.value
 })
 
 const canCheckOut = computed(() => {
@@ -267,7 +267,7 @@ onMounted(() => {
                                 </tr>
                                 <tr>
                                     <th>Status:</th>
-                                    <td v-html="todayAttendance.status"></td>
+                                    <td v-html="currentStatus"></td>
                                 </tr>
                             </table>
                             
