@@ -21,6 +21,7 @@ const columns = [
     { field: 'name', display: 'Nama Kelas' },
     { field: 'teacher.name', display: 'Guru' },
     { field: 'academic_year.name', display: 'Tahun Ajaran' },
+    { field: 'students_count', display: 'Jumlah Siswa', sortable: false },
     { field: 'active', display: 'Status' },
     { field: 'action', display: 'Action', sortable: false },
 ]

@@ -78,10 +78,10 @@ class StudentAttendanceReportController extends Controller
 
             $totalRecords = $query->count();
             $totalStudents = $detailsQuery->distinct('student_id')->count('student_id');
-            $presentCount = (clone $detailsQuery)->where('status', 'present')->count();
-            $absentCount = (clone $detailsQuery)->where('status', 'absent')->count();
-            $sickCount = (clone $detailsQuery)->where('status', 'sick')->count();
-            $permissionCount = (clone $detailsQuery)->where('status', 'permission')->count();
+            $presentCount = (clone $detailsQuery)->where('status', 'hadir')->count();
+            $absentCount = (clone $detailsQuery)->where('status', 'alpa')->count();
+            $sickCount = (clone $detailsQuery)->where('status', 'sakit')->count();
+            $permissionCount = (clone $detailsQuery)->where('status', 'ijin')->count();
 
             $totalDetails = $presentCount + $absentCount + $sickCount + $permissionCount;
 
@@ -199,10 +199,10 @@ class StudentAttendanceReportController extends Controller
         );
 
         $totalStudents = (clone $allDetails)->distinct('student_id')->count('student_id');
-        $presentCount = (clone $allDetails)->where('status', 'present')->count();
-        $absentCount = (clone $allDetails)->where('status', 'absent')->count();
-        $sickCount = (clone $allDetails)->where('status', 'sick')->count();
-        $permissionCount = (clone $allDetails)->where('status', 'permission')->count();
+        $presentCount = (clone $allDetails)->where('status', 'hadir')->count();
+        $absentCount = (clone $allDetails)->where('status', 'alpa')->count();
+        $sickCount = (clone $allDetails)->where('status', 'sakit')->count();
+        $permissionCount = (clone $allDetails)->where('status', 'ijin')->count();
 
         return [
             'total_records' => $totalRecords,

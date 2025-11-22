@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { apiRequest } from '@/lib/apiClient'
 import { alertSuccess, alertError } from '@/lib/alert'
 import { useUser } from '@/store'
+import TableServerSide from '@/components/TableServerSide.vue'
 
 // State
 const loading = ref(false)
@@ -17,8 +18,29 @@ const { user } = useUser()
 const statusOptions = [
     { value: 'hadir', label: 'Hadir', color: 'success' },
     { value: 'sakit', label: 'Sakit', color: 'warning' },
-    { value: 'izin', label: 'Izin', color: 'info' },
+    { value: 'ijin', label: 'Izin', color: 'info' },
     { value: 'alpa', label: 'Alpa', color: 'danger' }
+]
+
+// TableServerSide columns
+const columns = [
+    {
+        field: 'student_name',
+        display: 'Nama Siswa',
+        sortable: true
+    },
+    {
+        field: 'status',
+        display: 'Status Kehadiran',
+        width: '200px',
+        sortable: false
+    },
+    {
+        field: 'note',
+        display: 'Catatan Guru',
+        width: '350px',
+        sortable: false
+    }
 ]
 
 // Computed
@@ -73,10 +95,19 @@ const hasExistingAttendance = computed(() => {
     return students.value.some(student => student.attendance_id)
 })
 
+// Add row number to students for TableServerSide
+const studentsWithRowNumber = computed(() => {
+    return students.value.map((student, index) => ({
+        ...student,
+        no: index + 1,
+        student_name: student.name
+    }))
+})
+
 // Fetch today's schedules
 const fetchTodaySchedules = async () => {
     try {
-        const { ok, data } = await apiRequest('schedules/today')
+        const { ok, data } = await apiRequest(`schedules/today?date=${selectedDate.value}`)
         if (ok) {
             todaySchedules.value = data.data || []
             
@@ -107,7 +138,7 @@ const fetchStudentsData = async () => {
 
         if (!classId) return
 
-        const { ok, data } = await apiRequest(`students?filter[class_id]=${classId}`)
+        const { ok, data } = await apiRequest(`students?filter[class_id]=${classId}&all=true`)
         if (ok) {
             students.value = (data.data || []).map(student => ({
                 ...student,
@@ -199,7 +230,16 @@ const saveAttendance = async () => {
             ? `Absensi berhasil disimpan untuk ${attendancePayload.subjects.length} mata pelajaran`
             : 'Absensi berhasil disimpan')
         
-        await fetchStudentsData() // Refresh data
+        // 🔥 NEW: Reset selection and reload schedules
+        selectedClass.value = null  // Kosongkan select kelas
+        students.value = []       // Kosongkan tabel siswa
+        await fetchTodaySchedules() // Reload schedule (hanya yang belum ada absensi)
+        
+        // Auto-select first available schedule if exists
+        if (classOptions.value.length > 0) {
+            selectedClass.value = classOptions.value[0].id
+            await fetchStudentsData()
+        }
     } catch (err) {
         console.error('Error saving attendance:', err)
         alertError(err.message || 'Terjadi kesalahan saat menyimpan absensi')
@@ -230,6 +270,11 @@ const getStatusBadgeClass = (status) => {
 
 // Lifecycle
 onMounted(() => {
+    fetchTodaySchedules()
+})
+
+// Watch for date changes to reload schedules
+watch(selectedDate, () => {
     fetchTodaySchedules()
 })
 </script>
@@ -347,87 +392,85 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <!-- Table -->
-                <div class="card-body p-0">
-                    <div v-if="loading" class="text-center py-5">
-                        <div class="spinner-border text-navy" role="status">
-                            <span class="sr-only">Loading...</span>
+                <!-- TableServerSide -->
+                <TableServerSide
+                        :title="'Daftar Siswa'"
+                        :serverside="false"
+                        :columns="columns"
+                        :rows="studentsWithRowNumber"
+                        :loading="loading"
+                    >
+                    <!-- Row Number Template -->
+                    <template #cell-no="{ index }">
+                        <span class="text-center align-middle font-weight-bold text-muted">{{ index + 1 }}</span>
+                    </template>
+
+                    <!-- Student Name Template -->
+                    <template #cell-student_name="{ row }">
+                        <div class="d-flex flex-column">
+                            <span class="student-name">{{ row.name }}</span>
+                            <small class="text-muted">NIS: {{ row.nis || '-' }}</small>
                         </div>
-                        <p class="mt-2 text-muted">Membuka buku absensi...</p>
-                    </div>
+                    </template>
 
-                    <div v-else-if="students.length > 0" class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover mb-0 ledger-table">
-                            <thead class="bg-navy text-white">
-                                <tr>
-                                    <th width="50" class="text-center">No</th>
-                                    <th>Nama Siswa</th>
-                                    <th width="200" class="text-center">Status Kehadiran</th>
-                                    <th width="350">Catatan Guru</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(student, index) in students" :key="student.id">
-                                    <td class="text-center align-middle font-weight-bold text-muted">{{ index + 1 }}</td>
-                                    <td class="align-middle">
-                                        <div class="d-flex flex-column">
-                                            <span class="student-name">{{ student.name }}</span>
-                                            <small class="text-muted">NIS: {{ student.nis || '-' }}</small>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
-                                            <label 
-                                                :class="['btn btn-sm btn-outline-success', { active: student.status === 'hadir' }]"
-                                                @click="updateStudentStatus(student.id, 'hadir')"
-                                                title="Hadir"
-                                            >
-                                                <input type="radio" name="options" autocomplete="off" :checked="student.status === 'hadir'"> H
-                                            </label>
-                                            <label 
-                                                :class="['btn btn-sm btn-outline-warning', { active: student.status === 'sakit' }]"
-                                                @click="updateStudentStatus(student.id, 'sakit')"
-                                                title="Sakit"
-                                            >
-                                                <input type="radio" name="options" autocomplete="off" :checked="student.status === 'sakit'"> S
-                                            </label>
-                                            <label 
-                                                :class="['btn btn-sm btn-outline-info', { active: student.status === 'izin' }]"
-                                                @click="updateStudentStatus(student.id, 'izin')"
-                                                title="Izin"
-                                            >
-                                                <input type="radio" name="options" autocomplete="off" :checked="student.status === 'izin'"> I
-                                            </label>
-                                            <label 
-                                                :class="['btn btn-sm btn-outline-danger', { active: student.status === 'alpa' }]"
-                                                @click="updateStudentStatus(student.id, 'alpa')"
-                                                title="Alpa"
-                                            >
-                                                <input type="radio" name="options" autocomplete="off" :checked="student.status === 'alpa'"> A
-                                            </label>
-                                        </div>
-                                    </td>
-                                    <td class="align-middle">
-                                        <input 
-                                            v-model="student.note" 
-                                            type="text" 
-                                            class="form-control form-control-sm border-0 bg-transparent"
-                                            placeholder="Tulis catatan..."
-                                            style="border-bottom: 1px dashed #ccc !important;"
-                                            @input="updateStudentNote(student.id, $event.target.value)"
-                                        >
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <!-- Status Buttons Template -->
+                    <template #cell-status="{ row }">
+                        <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+                            <label 
+                                :class="['btn btn-sm btn-outline-success', { active: row.status === 'hadir' }]"
+                                @click="updateStudentStatus(row.id, 'hadir')"
+                                title="Hadir"
+                            >
+                                <input type="radio" name="options" autocomplete="off" :checked="row.status === 'hadir'"> H
+                            </label>
+                            <label 
+                                :class="['btn btn-sm btn-outline-warning', { active: row.status === 'sakit' }]"
+                                @click="updateStudentStatus(row.id, 'sakit')"
+                                title="Sakit"
+                            >
+                                <input type="radio" name="options" autocomplete="off" :checked="row.status === 'sakit'"> S
+                            </label>
+                            <label 
+                                :class="['btn btn-sm btn-outline-info', { active: row.status === 'izin' }]"
+                                @click="updateStudentStatus(row.id, 'ijin')"
+                                title="Izin"
+                            >
+                                <input type="radio" name="options" autocomplete="off" :checked="row.status === 'izin'"> I
+                            </label>
+                            <label 
+                                :class="['btn btn-sm btn-outline-danger', { active: row.status === 'alpa' }]"
+                                @click="updateStudentStatus(row.id, 'alpa')"
+                                title="Alpa"
+                            >
+                                <input type="radio" name="options" autocomplete="off" :checked="row.status === 'alpa'"> A
+                            </label>
+                        </div>
+                    </template>
 
-                    <div v-else-if="!loading" class="text-center py-5 text-muted">
-                        <i class="fas fa-book-open fa-3x mb-3 opacity-50"></i>
-                        <p class="lead" v-if="!selectedClass">Silakan pilih kelas untuk membuka buku absensi.</p>
-                        <p class="lead" v-else>Tidak ada siswa terdaftar di kelas ini.</p>
-                    </div>
-                </div>
+                    <!-- Note Input Template -->
+                    <template #cell-note="{ row }">
+                        <input 
+                            v-model="row.note" 
+                            type="text" 
+                            class="form-control form-control-sm border-0 bg-transparent"
+                            placeholder="Tulis catatan..."
+                            style="border-bottom: 1px dashed #ccc !important;"
+                            @input="updateStudentNote(row.id, $event.target.value)"
+                        >
+                    </template>
+
+                    <!-- Empty State Template -->
+                    <template #footer>
+                        <div v-if="!loading && !selectedClass" class="text-center py-5 text-muted">
+                            <i class="fas fa-book-open fa-3x mb-3 opacity-50"></i>
+                            <p class="lead">Silakan pilih kelas untuk membuka buku absensi.</p>
+                        </div>
+                        <div v-else-if="!loading && selectedClass && students.length === 0" class="text-center py-5 text-muted">
+                            <i class="fas fa-book-open fa-3x mb-3 opacity-50"></i>
+                            <p class="lead">Tidak ada siswa terdaftar di kelas ini.</p>
+                        </div>
+                    </template>
+                </TableServerSide>
             </div>
         </div>
     </section>

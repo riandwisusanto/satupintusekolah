@@ -32,9 +32,9 @@ class StudentAttendanceRequest extends FormRequest
                     })
                     ->ignore($this->route('id') ?? $this->route('student_attendance')),
             ],
-            'teacher_id' => 'required|exists:users,id',
+            // 'teacher_id' => 'required|exists:users,id',
             'class_id' => 'required|exists:classes,id',
-            'academic_year_id' => 'required|exists:academic_years,id',
+            // 'academic_year_id' => 'required|exists:academic_years,id',
             'subjects' => 'required|array|min:1',
             'subjects.*.subject_id' => 'required|exists:subjects,id',
             'details' => 'required|array|min:1',

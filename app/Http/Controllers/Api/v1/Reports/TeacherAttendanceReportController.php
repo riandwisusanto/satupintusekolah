@@ -93,15 +93,15 @@ class TeacherAttendanceReportController extends Controller
             }
 
             // Calculate statistics
-            $totalRecords = $query->count();
-            $presentDays = $query->whereIn('status', ['check_in', 'check_out'])->count();
-            $sickDays = $query->where('status', 'sick')->count();
-            $permissionDays = $query->where('status', 'permission')->count();
-            $leaveDays = $query->where('status', 'on_leave')->count();
+            $totalRecords = (clone $query)->count();
+            $presentDays = (clone $query)->whereIn('status', ['check_in', 'check_out'])->count();
+            $sickDays = (clone $query)->where('status', 'sick')->count();
+            $permissionDays = (clone $query)->where('status', 'permission')->count();
+            $leaveDays = (clone $query)->where('status', 'on_leave')->count();
             $absentDays = $sickDays + $permissionDays + $leaveDays;
 
             // Get unique teachers count
-            $uniqueTeachers = $query->distinct('teacher_id')->count('teacher_id');
+            $uniqueTeachers = (clone $query)->distinct('teacher_id')->count('teacher_id');
 
             $summary = [
                 'total_records' => $totalRecords,

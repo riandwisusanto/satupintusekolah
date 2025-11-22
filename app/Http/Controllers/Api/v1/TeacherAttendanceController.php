@@ -127,6 +127,12 @@ class TeacherAttendanceController extends Controller
         // Set time_in and time_out to null for absence records
         $validated['time_in'] = null;
         $validated['time_out'] = null;
+        
+        // Map notes to note
+        if (isset($validated['notes'])) {
+            $validated['note'] = $validated['notes'];
+            unset($validated['notes']);
+        }
 
         try {
             $teacherAttendance = TeacherAttendance::create($validated);

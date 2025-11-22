@@ -60,6 +60,13 @@ class Schedule extends Model
         return $this->belongsTo(AcademicYear::class, 'academic_year_id');
     }
 
+    public function studentAttendances()
+    {
+        return StudentAttendance::whereHas('subjects', function ($query) {
+            $query->whereColumn('student_attendance_subjects.subject_id', 'schedules.subject_id');
+        });
+    }
+
     public static function apiQueryConfig(): array
     {
         return [

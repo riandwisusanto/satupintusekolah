@@ -20,6 +20,7 @@ class TeacherAttendance extends Model
         'photo_in',
         'photo_out',
         'status',
+        'note',
     ];
 
     protected $appends = ['editable', 'deleteable'];
@@ -96,6 +97,7 @@ class TeacherAttendance extends Model
                 'date',
                 'teacher.name',
                 'status',
+                'note',
             ],
             'with' => ['teacher', 'histories']
         ];

@@ -21,7 +21,7 @@ class Classroom extends Model
         'active',
     ];
 
-    protected $appends = ['editable', 'deleteable'];
+    protected $appends = ['editable', 'deleteable', 'students_count'];
 
     protected $casts = [
         'teacher_id' => 'integer',
@@ -38,6 +38,11 @@ class Classroom extends Model
         return $this->students()->count() === 0;
     }
 
+    public function getStudentsCountAttribute(): int
+    {
+        return $this->students()->count();
+    }
+
     public function students()
     {
         return $this->hasMany(Student::class, 'class_id');
@@ -51,5 +56,30 @@ class Classroom extends Model
     public function academicYear()
     {
         return $this->belongsTo(AcademicYear::class, 'academic_year_id');
+    }
+
+    public static function apiQueryConfig(): array
+    {
+        return [
+            'searchable' => [
+                'name',
+                'teacher.name',
+                'students_count'
+            ],
+            'filterable' => [
+                'name',
+                'teacher_id',
+                'academic_year_id',
+                'active'
+            ],
+            'sortable' => [
+                'name',
+                'students_count',
+                'teacher.name',
+                'created_at'
+            ],
+            'with' => ['teacher'],
+            'default_sort' => 'name'
+        ];
     }
 }

@@ -40,7 +40,11 @@ class StudentAttendanceController extends Controller
 
         DB::beginTransaction();
         try {
-            $studentAttendance = StudentAttendance::create($validated);
+            $studentAttendance = StudentAttendance::create([
+                ...$validated,
+                'academic_year_id' => AcademicYear::where('active', true)->first()->id,
+                'teacher_id' => auth()->id()
+            ]);
 
             // Create subjects relationships
             foreach ($subjects as $subject) {

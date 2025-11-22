@@ -78,19 +78,32 @@ class ScheduleController extends Controller
         }
     }
 
-    public function today()
+    public function today(Request $request)
     {
         $dayOfWeek = now()->dayOfWeek;
         if ($dayOfWeek == 0) {
             return collect([]);
         }
+
+        $date = $request->get('date', now()->format('Y-m-d'));
         $dbDay = $dayOfWeek;
-        $datas = ApiQueryHelper::apply(
-            Schedule::when(!auth()->user()->isAdmin(), function ($query) {
-                $query->where('teacher_id', auth()->user()->id);
-            })->where('day', $dbDay),
-            Schedule::apiQueryConfig()
-        );
+
+        $query = Schedule::when(!auth()->user()->isAdmin(), function ($query) {
+            $query->where('teacher_id', auth()->user()->id);
+        })->where('day', $dbDay);
+
+        // Filter out schedules that already have attendance for given date
+        $query->whereNotIn('id', function ($subQuery) use ($date) {
+            $subQuery->select('schedules.id')
+                ->from('schedules')
+                ->join('student_attendance_subjects', 'schedules.subject_id', '=', 'student_attendance_subjects.subject_id')
+                ->join('student_attendances', 'student_attendance_subjects.student_attendance_id', '=', 'student_attendances.id')
+                ->where('student_attendances.date', $date)
+                ->where('student_attendances.teacher_id', auth()->user()->id);
+        });
+
+        $datas = ApiQueryHelper::apply($query, Schedule::apiQueryConfig());
+
         try {
             return $datas;
         } catch (\Throwable $th) {

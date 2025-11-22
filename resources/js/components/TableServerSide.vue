@@ -20,7 +20,7 @@
         </button>
       </div>
 
-      <div class="input-group ms-auto" style="width: 180px;" v-if="props.serverside">
+      <div class="input-group ms-auto" style="width: 180px;">
         <input v-model="search" type="text" class="form-control float-right" placeholder="Search" />
         <div class="input-group-append">
           <button class="btn btn-default" @click="reload">
@@ -79,7 +79,7 @@
     </div>
 
     <!-- Pagination -->
-    <div class="card-footer clearfix" v-if="props.serverside">
+    <div class="card-footer clearfix">
       <div class="row">
         <div class="col-md-1 col-sm-1 col-4">
           <select class="form-control form-control-sm" v-model="perPage">
@@ -225,7 +225,10 @@ async function fetchData() {
 
 function reload() {
   currentPage.value = 1;
-  props.serverside ? fetchData() : null;
+  if (props.serverside) {
+    fetchData();
+  }
+  // For local mode, the computed properties will automatically update
 }
 
 function sort(field) {
@@ -234,13 +237,19 @@ function sort(field) {
     sortField.value = field;
     sortOrder.value = 'asc';
   }
-  props.serverside ? fetchData() : null;
+  if (props.serverside) {
+    fetchData();
+  }
+  // For local mode, the computed properties will automatically update
 }
 
 function goToPage(page) {
   if (page < 1 || page > totalPages.value) return;
   currentPage.value = page;
-  props.serverside ? fetchData() : null;
+  if (props.serverside) {
+    fetchData();
+  }
+  // For local mode, the computed properties will automatically update
 }
 
 function onRowClick(row, idKey) {
