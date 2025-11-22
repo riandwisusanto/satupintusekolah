@@ -295,7 +295,7 @@ onMounted(() => {
                                                 {{ getStatusBadge(item.status).label }}
                                             </span>
                                         </td>
-                                        <td>{{ item.notes || '-' }}</td>
+                                        <td>{{ item.note || '-' }}</td>
                                     </tr>
                                 </tbody>
                             </table>

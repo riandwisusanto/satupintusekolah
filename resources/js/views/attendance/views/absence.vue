@@ -28,7 +28,7 @@ const columns = [
     { field: 'date', display: 'Tanggal' },
     { field: 'teacher.name', display: 'Nama Guru' },
     { field: 'status', display: 'Jenis Ketidakhadiran' },
-    { field: 'notes', display: 'Catatan' },
+    { field: 'note', display: 'Catatan' },
     { field: 'action', display: 'Aksi', sortable: false }
 ]
 
@@ -277,8 +277,8 @@ const getStatusBadge = (status) => {
                             <span v-html="getStatusBadge(row.status)"></span>
                         </template>
 
-                        <template #cell-notes="{ row }">
-                            <span class="text-muted">{{ row.notes || '-' }}</span>
+                        <template #cell-note="{ row }">
+                            <span class="text-muted">{{ row.note || '-' }}</span>
                         </template>
 
                         <template #cell-action="{ row }">
