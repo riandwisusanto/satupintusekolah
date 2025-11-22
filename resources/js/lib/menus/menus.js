@@ -103,5 +103,19 @@ export const sidebarMenus = [
         icon: 'fas fa-journal-whills',
         to: '/teacher-journals',
         permission: 'teacher_journals.view',
+    },
+    {
+        key: 'reports',
+        label: 'Laporan',
+        icon: 'fas fa-chart-bar',
+        children: [
+            {
+                key: 'report-teacher-attendance',
+                label: 'Absensi Guru',
+                icon: 'fas fa-user-clock',
+                to: '/reports/teacher-attendance',
+                permission: 'reports.teacher_attendance.view',
+            }
+        ]
     }
 ]

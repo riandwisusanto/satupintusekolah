@@ -40,5 +40,7 @@ return [
 
     'schedules.view',
 
-    'student_attendances.view'
+    'student_attendances.view',
+
+    'reports.teacher_attendance.view',
 ];

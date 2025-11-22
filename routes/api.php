@@ -51,6 +51,12 @@ Route::prefix('v1')
             Route::get('teacher-attendances/monthly-report', [\App\Http\Controllers\Api\v1\TeacherAttendanceController::class, 'getMonthlyReport']);
             Route::get('teacher-attendances/teacher/{teacher_id}/date/{date}', [\App\Http\Controllers\Api\v1\TeacherAttendanceController::class, 'getByTeacherAndDate']);
 
+            // Teacher Attendance Report Routes
+            Route::get('reports/teacher-attendance', [\App\Http\Controllers\Api\v1\Reports\TeacherAttendanceReportController::class, 'index']);
+            Route::get('reports/teacher-attendance/summary', [\App\Http\Controllers\Api\v1\Reports\TeacherAttendanceReportController::class, 'summary']);
+            Route::get('reports/teacher-attendance/export-pdf', [\App\Http\Controllers\Api\v1\Reports\TeacherAttendanceReportController::class, 'exportPdf']);
+            Route::get('reports/teacher-attendance/export-excel', [\App\Http\Controllers\Api\v1\Reports\TeacherAttendanceReportController::class, 'exportExcel']);
+
             // Teacher Attendance Resource Route (Must be AFTER custom routes)
             Route::apiResource('teacher-attendances', \App\Http\Controllers\Api\v1\TeacherAttendanceController::class);
         });
