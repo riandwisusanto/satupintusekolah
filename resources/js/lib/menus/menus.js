@@ -122,6 +122,13 @@ export const sidebarMenus = [
                 icon: 'fas fa-book',
                 to: '/reports/teacher-journals',
                 permission: 'reports.teacher_journals.view',
+            },
+            {
+                key: 'report-student-attendance',
+                label: 'Absensi Siswa',
+                icon: 'fas fa-users',
+                to: '/reports/student-attendance',
+                permission: 'reports.student_attendance.view',
             }
         ]
     }

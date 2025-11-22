@@ -8,5 +8,10 @@ export const ReportRoutes = [
         path: 'reports/teacher-journals',
         name: 'reports.teacher-journals',
         component: () => import('./views/teacher-journals.vue'),
+    },
+    {
+        path: 'reports/student-attendance',
+        name: 'reports.student-attendance',
+        component: () => import('./views/student-attendance.vue'),
     }
 ]
