@@ -11,6 +11,7 @@ use App\Models\Classroom;
 use App\Models\Schedule;
 use App\Models\AcademicYear;
 use App\Models\StudentAttendance;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -109,7 +110,99 @@ class JournalController extends Controller
     public function teacherDashboard(Request $request)
     {
         try {
-            $user = $request->user();
+            $user = auth()->user();
+            
+            // Admin Dashboard Logic
+            if ($user->isAdmin()) {
+                $today = Carbon::now()->format('Y-m-d');
+                
+                $days = [
+                    'Sunday' => 'Minggu',
+                    'Monday' => 'Senin',
+                    'Tuesday' => 'Selasa',
+                    'Wednesday' => 'Rabu',
+                    'Thursday' => 'Kamis',
+                    'Friday' => 'Jumat',
+                    'Saturday' => 'Sabtu'
+                ];
+                
+                $dayName = $days[Carbon::now()->format('l')];
+                
+                // Stats
+                $totalJournalsToday = Journal::where('date', $today)->count();
+                
+                // Get teachers who have schedule today
+                $scheduledTeacherIds = Schedule::where('day', $dayName)
+                    ->distinct('teacher_id')
+                    ->pluck('teacher_id');
+                    
+                $totalTeachersScheduled = $scheduledTeacherIds->count();
+                
+                // Get teachers who submitted journal today
+                $submittedTeacherIds = Journal::where('date', $today)
+                    ->distinct('teacher_id')
+                    ->pluck('teacher_id');
+                    
+                $totalTeachersSubmitted = $submittedTeacherIds->count();
+                
+                // Recent Journals
+                $recentJournals = Journal::with(['teacher', 'classroom', 'subjects.subject'])
+                    ->where('date', $today)
+                    ->orderBy('created_at', 'desc')
+                    ->take(10)
+                    ->get();
+                    
+                // Teachers who haven't submitted
+                $notSubmittedTeacherIds = $scheduledTeacherIds->diff($submittedTeacherIds);
+                $teachersNotSubmitted = User::whereIn('id', $notSubmittedTeacherIds)
+                    ->select('id', 'name', 'photo')
+                    ->get();
+
+                // Master Data Stats
+                $totalStudents = \App\Models\Student::where('active', true)->count();
+                $totalTeachers = User::where('active', true)->whereHas('role', function($q) {
+                    $q->where('name', 'teacher');
+                })->count();
+                $totalClasses = Classroom::where('active', true)->count();
+                $totalSubjects = \App\Models\Subject::where('active', true)->count();
+
+                // Attendance Stats
+                // Get total scheduled classes for today (unique by class_id and subject_id)
+                $totalScheduledClasses = Schedule::where('day', $dayName)->count();
+                
+                // Get total attendance submitted today
+                // We need to count how many subjects have been attended to.
+                // StudentAttendance hasMany StudentAttendanceSubject.
+                $attendanceSubmittedCount = \App\Models\StudentAttendanceSubject::whereHas('studentAttendance', function($q) use ($today) {
+                    $q->where('date', $today);
+                })->count();
+
+                return apiResponse('Admin Dashboard data retrieved successfully', [
+                    'is_admin' => true,
+                    'user' => $user,
+                    'stats' => [
+                        'total_journals_today' => $totalJournalsToday,
+                        'teachers_scheduled' => $totalTeachersScheduled,
+                        'teachers_submitted' => $totalTeachersSubmitted,
+                        'completion_rate' => $totalTeachersScheduled > 0 ? round(($totalTeachersSubmitted / $totalTeachersScheduled) * 100, 1) : 0,
+                        
+                        // Master Data
+                        'total_students' => $totalStudents,
+                        'total_teachers' => $totalTeachers,
+                        'total_classes' => $totalClasses,
+                        'total_subjects' => $totalSubjects,
+
+                        // Attendance Stats
+                        'total_scheduled_classes' => $totalScheduledClasses,
+                        'attendance_submitted_count' => $attendanceSubmittedCount,
+                        'attendance_completion_rate' => $totalScheduledClasses > 0 ? round(($attendanceSubmittedCount / $totalScheduledClasses) * 100, 1) : 0
+                    ],
+                    'recent_journals' => $recentJournals,
+                    'teachers_not_submitted' => $teachersNotSubmitted
+                ]);
+            }
+
+            // Teacher Dashboard Logic
             $today = Carbon::now()->format('Y-m-d');
             
             $days = [
@@ -248,6 +341,7 @@ class JournalController extends Controller
                 ->count();
 
             return apiResponse('Dashboard data retrieved successfully', [
+                'is_admin' => false,
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
