@@ -10,6 +10,7 @@ use App\Models\Journal;
 use App\Models\Classroom;
 use App\Models\Schedule;
 use App\Models\AcademicYear;
+use App\Models\StudentAttendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -110,11 +111,22 @@ class JournalController extends Controller
         try {
             $user = $request->user();
             $today = Carbon::now()->format('Y-m-d');
-            $dayOfWeek = now()->dayOfWeek;
-            if ($dayOfWeek == 0) {
+            
+            $days = [
+                'Sunday' => 'Minggu',
+                'Monday' => 'Senin',
+                'Tuesday' => 'Selasa',
+                'Wednesday' => 'Rabu',
+                'Thursday' => 'Kamis',
+                'Friday' => 'Jumat',
+                'Saturday' => 'Sabtu'
+            ];
+            
+            $dayName = $days[Carbon::now()->format('l')];
+            if ($dayName == 'Minggu') {
                 return collect([]);
             }
-            $currentDay = $dayOfWeek;
+            $currentDay = $dayName;
 
             // Check if user is homeroom teacher
             $isHomeroomTeacher = false;
@@ -134,7 +146,31 @@ class JournalController extends Controller
                 ->where('day', $currentDay)
                 ->with(['subject', 'classroom'])
                 ->orderBy('start_time')
-                ->get();
+                ->get()
+                ->map(function ($schedule) use ($user, $today) {
+                    // Check attendance
+                    $isAttendanceFilled = StudentAttendance::where('teacher_id', $user->id)
+                        ->where('class_id', $schedule->class_id)
+                        ->where('date', $today)
+                        ->whereHas('subjects', function ($query) use ($schedule) {
+                            $query->where('subject_id', $schedule->subject_id);
+                        })
+                        ->exists();
+
+                    // Check journal
+                    $isJournalFilled = Journal::where('teacher_id', $user->id)
+                        ->where('class_id', $schedule->class_id)
+                        ->where('date', $today)
+                        ->whereHas('subjects', function ($query) use ($schedule) {
+                            $query->where('subject_id', $schedule->subject_id);
+                        })
+                        ->exists();
+
+                    $schedule->is_attendance_filled = $isAttendanceFilled;
+                    $schedule->is_journal_filled = $isJournalFilled;
+                    
+                    return $schedule;
+                });
 
             // Get available subjects for today (for multi-subject journal)
             $todaySubjects = $todaySchedules->map(function ($schedule) {
@@ -156,23 +192,44 @@ class JournalController extends Controller
             // Check if teacher already submitted journal today
             $hasSubmittedToday = $todayJournals->count() > 0;
 
-            // Get pending journals (last 7 days without submission)
+            // Get pending journals (last 7 days + today)
             $pendingDays = [];
-            for ($i = 1; $i <= 7; $i++) {
+            for ($i = 0; $i <= 7; $i++) {
                 $date = Carbon::now()->subDays($i);
-                $daySchedule = Schedule::where('teacher_id', $user->id)
-                    ->where('day', strtolower($date->format('l')))
-                    ->count();
+                $dayName = $days[$date->format('l')];
+                
+                if ($dayName == 'Minggu') continue; // Skip Sunday
 
-                if ($daySchedule > 0) {
-                    $journalCheck = Journal::where('teacher_id', $user->id)
+                // Get schedules for this day
+                $schedules = Schedule::where('teacher_id', $user->id)
+                    ->where('day', $dayName)
+                    ->get();
+
+                if ($schedules->count() > 0) {
+                    // Get journals for this day
+                    $journals = Journal::where('teacher_id', $user->id)
                         ->where('date', $date->format('Y-m-d'))
-                        ->count();
+                        ->with('subjects')
+                        ->get();
 
-                    if ($journalCheck === 0) {
+                    // Check if all schedules are covered
+                    $allCovered = true;
+                    foreach ($schedules as $schedule) {
+                        $isCovered = $journals->contains(function ($journal) use ($schedule) {
+                            return $journal->class_id == $schedule->class_id &&
+                                   $journal->subjects->contains('subject_id', $schedule->subject_id);
+                        });
+
+                        if (!$isCovered) {
+                            $allCovered = false;
+                            break;
+                        }
+                    }
+
+                    if (!$allCovered) {
                         $pendingDays[] = [
                             'date' => $date->format('Y-m-d'),
-                            'day_name' => $date->format('l'),
+                            'day_name' => $dayName,
                             'day_date' => $date->format('d/m')
                         ];
                     }
@@ -205,8 +262,9 @@ class JournalController extends Controller
                 'pending_days' => $pendingDays,
                 'stats' => [
                     'this_month_journals' => $thisMonthJournals,
+                    'pending_journals' => count($pendingDays) - $thisMonthJournals,
                     'working_days_this_month' => $workingDaysThisMonth,
-                    'completion_rate' => $workingDaysThisMonth > 0 ? round(($thisMonthJournals / $workingDaysThisMonth) * 100, 1) : 0
+                    'completion_rate' => $workingDaysThisMonth > 0 ? round((count($pendingDays) - $thisMonthJournals) / count($pendingDays) * 100, 1) : 0
                 ]
             ]);
         } catch (\Throwable $th) {
@@ -218,11 +276,21 @@ class JournalController extends Controller
     {
         try {
             $user = $request->user();
-            $dayOfWeek = now()->dayOfWeek;
-            if ($dayOfWeek == 0) {
+            $days = [
+                'Sunday' => 'Minggu',
+                'Monday' => 'Senin',
+                'Tuesday' => 'Selasa',
+                'Wednesday' => 'Rabu',
+                'Thursday' => 'Kamis',
+                'Friday' => 'Jumat',
+                'Saturday' => 'Sabtu'
+            ];
+            
+            $dayName = $days[Carbon::now()->format('l')];
+            if ($dayName == 'Minggu') {
                 return collect([]);
             }
-            $currentDay = $dayOfWeek;
+            $currentDay = $dayName;
 
             $todaySubjects = Schedule::where('teacher_id', $user->id)
                 ->where('day', $currentDay)
@@ -239,6 +307,79 @@ class JournalController extends Controller
                 })->unique('id')->values();
 
             return apiResponse('Today subjects retrieved successfully', ['subjects' => $todaySubjects]);
+        } catch (\Throwable $th) {
+            return apiResponse($th->getMessage(), null, 500);
+        }
+    }
+    public function getJournalFormData(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $days = [
+                'Sunday' => 'Minggu',
+                'Monday' => 'Senin',
+                'Tuesday' => 'Selasa',
+                'Wednesday' => 'Rabu',
+                'Thursday' => 'Kamis',
+                'Friday' => 'Jumat',
+                'Saturday' => 'Sabtu'
+            ];
+            
+            $dayName = $days[Carbon::now()->format('l')];
+            if ($dayName == 'Minggu') {
+                return collect([]);
+            }
+            $currentDay = $dayName;
+            $date = Carbon::now()->format('Y-m-d');
+            $classId = $request->get('class_id');
+
+            // Get today's classes from schedule
+            $todayClasses = Schedule::where('teacher_id', $user->id)
+                ->where('day', $currentDay)
+                ->with('classroom')
+                ->distinct('class_id')
+                ->get()
+                ->map(function ($schedule) {
+                    return [
+                        'value' => $schedule->classroom->id,
+                        'label' => $schedule->classroom->name,
+                        'id' => $schedule->classroom->id,
+                        'name' => $schedule->classroom->name,
+                    ];
+                })->unique('value')->values();
+
+            $subjects = [];
+            if ($classId) {
+                // Get subjects for the selected class and date
+                $subjects = Schedule::where('teacher_id', $user->id)
+                    ->where('class_id', $classId)
+                    ->where('day', $currentDay)
+                    ->with('subject')
+                    ->get()
+                    ->map(function ($schedule) use ($user, $date, $classId) {
+                        // Check if journal already exists for this subject
+                        $isFilled = Journal::where('teacher_id', $user->id)
+                            ->where('date', $date)
+                            ->whereHas('subjects', function ($query) use ($schedule) {
+                                $query->where('subject_id', $schedule->subject_id);
+                            })
+                            ->exists();
+
+                        return [
+                            'id' => $schedule->subject->id,
+                            'name' => $schedule->subject->name,
+                            'value' => $schedule->subject->id,
+                            'label' => $schedule->subject->name,
+                            'time' => $schedule->start_time . ' - ' . $schedule->end_time,
+                            'is_filled' => $isFilled
+                        ];
+                    })->unique('value')->values();
+            }
+
+            return apiResponse('Data form jurnal', [
+                'classes' => $todayClasses,
+                'subjects' => $subjects
+            ]);
         } catch (\Throwable $th) {
             return apiResponse($th->getMessage(), null, 500);
         }

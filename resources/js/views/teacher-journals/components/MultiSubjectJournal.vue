@@ -4,6 +4,7 @@ import { apiRequest } from '@/lib/apiClient'
 import { alertSuccess, alertError } from '@/lib/alert'
 import { formatDate } from '@/lib/formatters'
 import { useUser } from '../../../store'
+import SelectServerSide from '@/components/SelectServerSide.vue'
 
 // Props
 const props = defineProps({
@@ -20,7 +21,9 @@ const emit = defineEmits(['close', 'success'])
 
 // State
 const loading = ref(false)
-const todaySubjects = ref([])
+const classes = ref([])
+const selectedClassId = ref('')
+const classSubjects = ref([])
 const selectedSubjects = ref([])
 const journalForm = ref({
     date: new Date().toISOString().split('T')[0],
@@ -32,25 +35,56 @@ const journalForm = ref({
 // Computed
 const isSubmitDisabled = computed(() => {
     return selectedSubjects.value.length === 0 || 
+           !selectedClassId.value ||
            !journalForm.value.theme.trim() || 
            !journalForm.value.activity.trim() ||
            loading.value
 })
 
-// Fetch today's subjects
-const fetchTodaySubjects = async () => {
+// Fetch classes and subjects
+const fetchFormData = async () => {
+    loading.value = true
     try {
-        const { ok, data } = await apiRequest('journals/today-subjects')
+        const query = new URLSearchParams({
+            date: journalForm.value.date,
+            class_id: selectedClassId.value || ''
+        }).toString()
+
+        const { ok, data } = await apiRequest(`journals/form-data?${query}`)
         if (ok) {
-            todaySubjects.value = data.data?.subjects || []
+            classes.value = data.data?.classes || []
+            classSubjects.value = data.data?.subjects || []
+            
+            // Clear selected subjects if class changes
+            if (selectedClassId.value) {
+                selectedSubjects.value = []
+            }
         }
     } catch (err) {
-        console.error('Error fetching today subjects:', err)
+        console.error('Error fetching form data:', err)
+    } finally {
+        loading.value = false
     }
 }
 
+// Watch for date changes to refresh data
+watch(() => journalForm.value.date, () => {
+    if (props.visible) {
+        fetchFormData()
+    }
+})
+
+// Watch for class changes to fetch subjects
+watch(selectedClassId, () => {
+    if (props.visible) {
+        fetchFormData()
+    }
+})
+
 // Toggle subject selection
-const toggleSubject = (subjectId) => {
+const toggleSubject = (subjectId, isFilled) => {
+    if (isFilled) return // Prevent selection if already filled
+
     const index = selectedSubjects.value.indexOf(subjectId)
     if (index > -1) {
         selectedSubjects.value.splice(index, 1)
@@ -64,9 +98,11 @@ const isSubjectSelected = (subjectId) => {
     return selectedSubjects.value.includes(subjectId)
 }
 
-// Select all subjects
+// Select all available subjects
 const selectAllSubjects = () => {
-    selectedSubjects.value = todaySubjects.value.map(subject => subject.id)
+    selectedSubjects.value = classSubjects.value
+        .filter(subject => !subject.is_filled)
+        .map(subject => subject.id)
 }
 
 // Clear selection
@@ -84,7 +120,7 @@ const submitJournal = async () => {
             ...journalForm.value,
             subject_ids: selectedSubjects.value,
             teacher_id: user.user.id,
-            class_id: todaySubjects.value.find(subject => subject.id === selectedSubjects.value[0])?.class_id,
+            class_id: selectedClassId.value,
             active: true
         }
 
@@ -121,20 +157,23 @@ const resetForm = () => {
         activity: '',
         notes: ''
     }
+    selectedClassId.value = ''
+    classes.value = []
+    classSubjects.value = []
     selectedSubjects.value = []
 }
 
 // Lifecycle
 onMounted(() => {
     if (props.visible) {
-        fetchTodaySubjects()
+        fetchFormData()
     }
 })
 
 // Watch for visibility changes
 watch(() => props.visible, (newVal) => {
     if (newVal) {
-        fetchTodaySubjects()
+        fetchFormData()
     } else {
         resetForm()
     }
@@ -158,7 +197,7 @@ watch(() => props.visible, (newVal) => {
                     <form @submit.prevent="submitJournal">
                         <!-- Date Selection -->
                         <div class="row mb-3">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label">
                                     <i class="fas fa-calendar"></i> Tanggal
                                 </label>
@@ -170,13 +209,27 @@ watch(() => props.visible, (newVal) => {
                                     required
                                 >
                             </div>
+                            <div class="col-md-6">
+                                <SelectServerSide
+                                    v-model="selectedClassId"
+                                    label="Kelas"
+                                    :options="classes"
+                                    :serverside="false"
+                                    placeholder="-- Pilih Kelas --"
+                                    required
+                                >
+                                    <template #label>
+                                        <i class="fas fa-chalkboard-teacher"></i> Kelas
+                                    </template>
+                                </SelectServerSide>
+                            </div>
                         </div>
 
                         <!-- Subject Selection -->
-                        <div class="row mb-3">
+                        <div class="row mb-3" v-if="selectedClassId">
                             <div class="col-12">
                                 <label class="form-label">
-                                    <i class="fas fa-book"></i> Mata Pelajaran Hari Ini
+                                    <i class="fas fa-book"></i> Mata Pelajaran
                                     <span class="badge badge-info ml-2">{{ selectedSubjects.length }} Dipilih</span>
                                 </label>
                                 
@@ -187,7 +240,7 @@ watch(() => props.visible, (newVal) => {
                                         @click="selectAllSubjects" 
                                         class="btn btn-sm btn-outline-primary mr-2"
                                     >
-                                        <i class="fas fa-check-square"></i> Pilih Semua
+                                        <i class="fas fa-check-square"></i> Pilih Semua (Belum Diisi)
                                     </button>
                                     <button 
                                         type="button" 
@@ -199,16 +252,19 @@ watch(() => props.visible, (newVal) => {
                                 </div>
 
                                 <!-- Subject Grid -->
-                                <div v-if="todaySubjects.length > 0" class="row">
+                                <div v-if="classSubjects.length > 0" class="row">
                                     <div 
-                                        v-for="subject in todaySubjects" 
+                                        v-for="subject in classSubjects" 
                                         :key="subject.id" 
                                         class="col-md-6 mb-2"
                                     >
                                         <div 
-                                            @click="toggleSubject(subject.id)"
+                                            @click="toggleSubject(subject.id, subject.is_filled)"
                                             class="card subject-card"
-                                            :class="{ 'selected': isSubjectSelected(subject.id) }"
+                                            :class="{ 
+                                                'selected': isSubjectSelected(subject.id),
+                                                'disabled': subject.is_filled
+                                            }"
                                         >
                                             <div class="card-body py-2">
                                                 <div class="d-flex align-items-center">
@@ -216,14 +272,16 @@ watch(() => props.visible, (newVal) => {
                                                         <input 
                                                             type="checkbox" 
                                                             :checked="isSubjectSelected(subject.id)"
-                                                            @change="toggleSubject(subject.id)"
+                                                            :disabled="subject.is_filled"
+                                                            @change="toggleSubject(subject.id, subject.is_filled)"
                                                             class="form-check-input"
                                                         >
                                                     </div>
                                                     <div>
                                                         <strong>{{ subject.name }}</strong>
                                                         <br>
-                                                        <small class="text-muted">Kelas {{ subject.class_name }}</small>
+                                                        <small class="text-muted">{{ subject.time }}</small>
+                                                        <span v-if="subject.is_filled" class="badge badge-success ml-2">Sudah Diisi</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -233,60 +291,68 @@ watch(() => props.visible, (newVal) => {
 
                                 <div v-else class="alert alert-warning">
                                     <i class="fas fa-exclamation-triangle"></i>
-                                    Tidak ada mata pelajaran untuk hari ini.
+                                    Tidak ada mata pelajaran untuk kelas ini pada tanggal yang dipilih.
                                 </div>
                             </div>
                         </div>
+                        <div v-else-if="classes.length > 0" class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Silakan pilih kelas terlebih dahulu.
+                        </div>
+                        <div v-else class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> Tidak ada jadwal mengajar pada tanggal ini.
+                        </div>
 
                         <!-- Journal Content -->
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <label class="form-label">
-                                    <i class="fas fa-lightbulb"></i> Tema Pembelajaran
-                                </label>
-                                <textarea 
-                                    v-model="journalForm.theme" 
-                                    class="form-control"
-                                    rows="2"
-                                    placeholder="Contoh: Bilangan Bulat dan Pecahan"
-                                    required
-                                ></textarea>
+                        <div v-if="selectedClassId">
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label">
+                                        <i class="fas fa-lightbulb"></i> Tema Pembelajaran
+                                    </label>
+                                    <textarea 
+                                        v-model="journalForm.theme" 
+                                        class="form-control"
+                                        rows="2"
+                                        placeholder="Contoh: Bilangan Bulat dan Pecahan"
+                                        required
+                                    ></textarea>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <label class="form-label">
-                                    <i class="fas fa-tasks"></i> Kegiatan Pembelajaran
-                                </label>
-                                <textarea 
-                                    v-model="journalForm.activity" 
-                                    class="form-control"
-                                    rows="4"
-                                    placeholder="Deskripsikan kegiatan pembelajaran yang dilakukan..."
-                                    required
-                                ></textarea>
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label">
+                                        <i class="fas fa-tasks"></i> Kegiatan Pembelajaran
+                                    </label>
+                                    <textarea 
+                                        v-model="journalForm.activity" 
+                                        class="form-control"
+                                        rows="4"
+                                        placeholder="Deskripsikan kegiatan pembelajaran yang dilakukan..."
+                                        required
+                                    ></textarea>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="row mb-3">
-                            <div class="col-12">
-                                <label class="form-label">
-                                    <i class="fas fa-sticky-note"></i> Catatan Tambahan
-                                </label>
-                                <textarea 
-                                    v-model="journalForm.notes" 
-                                    class="form-control"
-                                    rows="3"
-                                    placeholder="Catatan khusus, kendala, atau hal lain yang perlu dicatat..."
-                                ></textarea>
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <label class="form-label">
+                                        <i class="fas fa-sticky-note"></i> Catatan Tambahan
+                                    </label>
+                                    <textarea 
+                                        v-model="journalForm.notes" 
+                                        class="form-control"
+                                        rows="3"
+                                        placeholder="Catatan khusus, kendala, atau hal lain yang perlu dicatat..."
+                                    ></textarea>
+                                </div>
                             </div>
-                        </div>
 
-                        <!-- Info Section -->
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i>
-                            <strong>Informasi:</strong> Jurnal ini akan tersimpan untuk {{ selectedSubjects.length }} mata pelajaran yang dipilih dengan konten yang sama.
+                            <!-- Info Section -->
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Informasi:</strong> Jurnal ini akan tersimpan untuk {{ selectedSubjects.length }} mata pelajaran yang dipilih dengan konten yang sama.
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -322,7 +388,7 @@ watch(() => props.visible, (newVal) => {
     border: 2px solid #dee2e6;
 }
 
-.subject-card:hover {
+.subject-card:hover:not(.disabled) {
     border-color: #007bff;
     transform: translateY(-1px);
 }
@@ -330,6 +396,13 @@ watch(() => props.visible, (newVal) => {
 .subject-card.selected {
     border-color: #28a745;
     background-color: #d4edda;
+}
+
+.subject-card.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
 }
 
 .form-check-input:checked {

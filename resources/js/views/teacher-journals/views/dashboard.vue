@@ -157,7 +157,7 @@ const quickAction = (action) => {
                     <div class="col-lg-3 col-6">
                         <div class="small-box bg-warning">
                             <div class="inner">
-                                <h3>{{ pendingDays.length }}</h3>
+                                <h3>{{ stats.pending_journals || 0 }}</h3>
                                 <p>Jurnal Belum Selesai</p>
                             </div>
                             <div class="icon">
@@ -179,7 +179,7 @@ const quickAction = (action) => {
                 </div>
 
                 <!-- Quick Actions -->
-                <div class="row mb-4">
+                <!-- <div class="row mb-4">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
@@ -190,7 +190,6 @@ const quickAction = (action) => {
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <!-- Multi-Subject Journal (Hanya untuk Guru Kelas) -->
                                     <div v-if="isHomeroomTeacher" class="col-md-3 col-sm-6 mb-3">
                                         <button 
                                             @click="openJournalForm" 
@@ -203,7 +202,6 @@ const quickAction = (action) => {
                                         </button>
                                     </div>
                                     
-                                    <!-- View Schedule -->
                                     <div class="col-md-3 col-sm-6 mb-3">
                                         <button class="btn btn-lg btn-info btn-block">
                                             <i class="fas fa-calendar-alt fa-2x mb-2"></i><br>
@@ -212,7 +210,6 @@ const quickAction = (action) => {
                                         </button>
                                     </div>
                                     
-                                    <!-- Attendance -->
                                     <div class="col-md-3 col-sm-6 mb-3">
                                         <a href="/student-attendance" class="btn btn-lg btn-warning btn-block">
                                             <i class="fas fa-user-check fa-2x mb-2"></i><br>
@@ -221,7 +218,6 @@ const quickAction = (action) => {
                                         </a>
                                     </div>
                                     
-                                    <!-- Journal History -->
                                     <div class="col-md-3 col-sm-6 mb-3">
                                         <button class="btn btn-lg btn-primary btn-block">
                                             <i class="fas fa-history fa-2x"></i><br>
@@ -233,7 +229,7 @@ const quickAction = (action) => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Today's Schedule -->
                 <div class="row mb-4">
@@ -258,7 +254,8 @@ const quickAction = (action) => {
                                                 <th>Waktu</th>
                                                 <th>Mata Pelajaran</th>
                                                 <th>Kelas</th>
-                                                <th>Status</th>
+                                                <th>Status Absen Siswa</th>
+                                                <th>Status Input Jurnal</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -275,8 +272,19 @@ const quickAction = (action) => {
                                                     <span class="badge badge-info">{{ schedule.classroom.name }}</span>
                                                 </td>
                                                 <td>
-                                                    <span class="badge badge-success">
-                                                        <i class="fas fa-check-circle"></i> Jadwal Aktif
+                                                    <span v-if="schedule.is_attendance_filled" class="badge badge-success">
+                                                        <i class="fas fa-check-circle"></i> Sudah Absen
+                                                    </span>
+                                                    <span v-else class="badge badge-danger">
+                                                        <i class="fas fa-times-circle"></i> Belum Absen
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span v-if="schedule.is_journal_filled" class="badge badge-success">
+                                                        <i class="fas fa-check-circle"></i> Sudah Input
+                                                    </span>
+                                                    <span v-else class="badge badge-danger">
+                                                        <i class="fas fa-times-circle"></i> Belum Input
                                                     </span>
                                                 </td>
                                             </tr>
@@ -289,7 +297,7 @@ const quickAction = (action) => {
                 </div>
 
                 <!-- Pending Journals -->
-                <div v-if="pendingDays.length > 0" class="row mb-4">
+                <!-- <div v-if="pendingDays.length > 0" class="row mb-4">
                     <div class="col-12">
                         <div class="card bg-warning">
                             <div class="card-header">
@@ -311,7 +319,7 @@ const quickAction = (action) => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>

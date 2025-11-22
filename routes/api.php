@@ -35,6 +35,7 @@ Route::prefix('v1')
             // Teacher Dashboard Custom Routes
             Route::get('journals/teacher-dashboard', [\App\Http\Controllers\Api\v1\JournalController::class, 'teacherDashboard']);
             Route::get('journals/today-subjects', [\App\Http\Controllers\Api\v1\JournalController::class, 'todaySubjects']);
+            Route::get('journals/form-data', [\App\Http\Controllers\Api\v1\JournalController::class, 'getJournalFormData']);
             Route::apiResource('journals', \App\Http\Controllers\Api\v1\JournalController::class);
 
             // Student Attendance Custom Routes
