@@ -1,5 +1,5 @@
 <template>
-    <teleport to="body">
+    <teleport to="body" class="font-serif-normal">
         <!-- Overlay -->
         <transition name="fade">
             <div 

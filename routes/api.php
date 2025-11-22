@@ -17,6 +17,7 @@ Route::prefix('v1')
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('logout', [AuthController::class, 'logout']);
             Route::get('me', [AuthController::class, 'me']);
+            Route::patch('me', [AuthController::class, 'updateProfile']);
             Route::patch('configurations/{name}', [ConfigurationSettingController::class, 'update']);
 
             Route::get('permissions/options', [App\Http\Controllers\Api\v1\RoleController::class, 'getPermissions']);

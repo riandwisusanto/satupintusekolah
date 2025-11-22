@@ -1,0 +1,1 @@
+import{f as s,h as o,i as a,t,x as e,o as r}from"./vue-zlSXZogm.js";const i={class:"main-footer"},l={__name:"Footer",setup:l=>(l,n)=>(r(),s("footer",i,[n[0]||(n[0]=o("div",{class:"float-right d-none d-sm-inline"},"Stay Growth",-1)),o("strong",null,"Copyright © 2025 "+t(e("Ada Jago"))+".",1),n[1]||(n[1]=a(" All rights reserved. ",-1))]))};export{l as default};

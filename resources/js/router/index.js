@@ -14,6 +14,7 @@ import TeacherJournalRoutes from '../views/teacher-journals/routes.js'
 import MySchedulesRoutes from '../views/my-schedules/routes.js'
 import { AttendanceRoutes } from '../views/attendance/routes.js'
 import StudentAttendanceRoutes from '../views/student-attendance/routes.js'
+import { ProfileRoutes } from '../views/profile/routes.js'
 
 // Route children dari Main Layout
 const MainChildren = [
@@ -23,6 +24,7 @@ const MainChildren = [
     ...MySchedulesRoutes,
     ...AttendanceRoutes,
     ...StudentAttendanceRoutes,
+    ...ProfileRoutes,
 ]
 
 const routesMain = {

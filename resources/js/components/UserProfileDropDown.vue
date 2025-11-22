@@ -27,9 +27,9 @@
             </li>
 
             <li class="user-footer d-flex px-3 pb-3">
-                <a href="#" class="btn btn-outline-secondary btn-sm">
+                <router-link to="/profile" class="btn btn-outline-secondary btn-sm">
                     <i class="fas fa-user"></i> Profile
-                </a>
+                </router-link>
 
                 <button
                     class="btn btn-danger btn-sm ml-auto d-flex align-items-center"
