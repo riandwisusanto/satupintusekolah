@@ -68,7 +68,16 @@ const classOptions = computed(() => {
                 classMap.get(schedule.classroom.id).subjects.push(schedule.subject)
             }
         })
-        return Array.from(classMap.values())
+        
+        // Keep original label for homeroom teachers, but add subject info separately
+        return Array.from(classMap.values()).map(classData => {
+            const subjectNames = classData.subjects.map(s => s.name).join(', ')
+            return {
+                ...classData,
+                label: classData.name,
+                subjectInfo: subjectNames
+            }
+        })
     }
     
     // Return individual schedules for subject teachers
@@ -316,6 +325,13 @@ watch(selectedDate, () => {
                                         @change="changeSelection"
                                         :max="new Date().toISOString().split('T')[0]"
                                     >
+                                </div>
+                                <!-- Subject info for homeroom teachers -->
+                                <div v-if="isHomeroomTeacher && selectedSchedule?.subjectInfo" class="mt-2">
+                                    <small class="text-info">
+                                        <i class="fas fa-book mr-1"></i>
+                                        Mata pelajaran: {{ selectedSchedule.subjectInfo }}
+                                    </small>
                                 </div>
                             </div>
                         </div>

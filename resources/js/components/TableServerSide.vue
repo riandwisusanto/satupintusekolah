@@ -79,12 +79,12 @@
     </div>
 
     <!-- Pagination -->
-    <div class="card-footer clearfix">
+    <div class="card-footer clearfix" v-if="rows?.length > 0">
       <div class="row">
         <div class="col-md-1 col-sm-1 col-4">
           <select class="form-control form-control-sm" v-model="perPage">
             <option value="all">All</option>
-            <option v-for="n in [2, 10, 15, 50, 100, 200]" :key="n" :value="n">{{ n }}</option>
+            <option v-for="n in [5, 10, 15, 50, 100, 200]" :key="n" :value="n">{{ n }}</option>
           </select>
         </div>
         <div class="col-md-5 col-sm-5 col-8">
@@ -132,7 +132,7 @@ const props = defineProps({
   columns: { type: Array, required: true },
   initialSort: { type: Object, default: () => ({ field: null, order: 'asc' }) },
   endpoint: { type: String, default: '' },
-  per_page: { type: Number, default: 10 },
+  per_page: { type: Number, default: 5 },
   extra: { type: Object, default: () => ({}) },
   idKey: { type: String, default: 'id' },
   rows: { type: Array, default: () => [] },
