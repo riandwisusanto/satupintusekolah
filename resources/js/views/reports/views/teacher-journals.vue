@@ -174,7 +174,7 @@ onMounted(() => {
             />
 
             <!-- Additional Filters -->
-            <div class="row mt-3">
+            <!-- <div class="row mt-3">
                 <div class="col-md-6">
                     <SelectServerSide
                         v-model="filters.subject_id"
@@ -199,7 +199,7 @@ onMounted(() => {
                         value-key="id"
                     />
                 </div>
-            </div>
+            </div> -->
 
             <!-- Summary Cards -->
             <div v-if="hasData" class="row mt-4">
@@ -261,7 +261,10 @@ onMounted(() => {
                             <div class="card-tools">
                                 <ExportButtons 
                                     v-if="hasData"
-                                    :filters="filters"
+                                    :filters="{
+                                        ...filters,
+
+                                    }"
                                     report-type="teacher-journals"
                                 />
                             </div>

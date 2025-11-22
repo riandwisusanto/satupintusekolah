@@ -135,7 +135,7 @@ class TeacherJournalReportController extends Controller
                     'month' => $request->month,
                     'teacher_name' => $request->teacher_id ? User::find($request->teacher_id)?->name : 'Semua Guru',
                 ],
-                'generated_at' => now()->format('d/m/Y H:i:s'),
+                'generated_at' => now()->format('d M Y H:i:s'),
             ];
 
             $pdf = Pdf::loadView('reports.teacher-journal-pdf', $data);
@@ -173,35 +173,35 @@ class TeacherJournalReportController extends Controller
      * Apply filters to query
      */
     private function applyFilters($query, $request)
-    {
-        if ($request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('date', [$request->start_date, $request->end_date]);
-        }
-
-        if ($request->has('month')) {
-            $month = $request->month;
-            $query->whereYear('date', substr($month, 0, 4))
-                  ->whereMonth('date', substr($month, 5, 2));
-        }
-
-        if ($request->has('academic_year_id')) {
-            $query->where('academic_year_id', $request->academic_year_id);
-        }
-
-        if ($request->has('teacher_id')) {
-            $query->where('teacher_id', $request->teacher_id);
-        }
-
-        if ($request->has('subject_id')) {
-            $query->whereHas('subjects', function($q) use ($request) {
-                $q->where('subject_id', $request->subject_id);
-            });
-        }
-
-        if ($request->has('class_id')) {
-            $query->where('class_id', $request->class_id);
-        }
+{
+    if ($request->filled('start_date') && $request->filled('end_date')) {
+        $query->whereBetween('date', [$request->start_date, $request->end_date]);
     }
+
+    if ($request->filled('month')) {
+        $month = $request->month;
+        $query->whereYear('date', substr($month, 0, 4))
+              ->whereMonth('date', substr($month, 5, 2));
+    }
+
+    if ($request->filled('academic_year_id')) {
+        $query->where('academic_year_id', $request->academic_year_id);
+    }
+
+    if ($request->filled('teacher_id')) {
+        $query->where('teacher_id', $request->teacher_id);
+    }
+
+    if ($request->filled('subject_id')) {
+        $query->whereHas('subjects', function($q) use ($request) {
+            $q->where('subject_id', $request->subject_id);
+        });
+    }
+
+    if ($request->filled('class_id')) {
+        $query->where('class_id', $request->class_id);
+    }
+}
 
     /**
      * Calculate summary statistics

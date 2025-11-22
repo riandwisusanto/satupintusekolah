@@ -153,7 +153,7 @@
                         @endphp
                         <span class="status-badge {{ $status['class'] }}">{{ $status['label'] }}</span>
                     </td>
-                    <td>{{ $attendance->notes ?? '-' }}</td>
+                    <td>{{ $attendance->note ?? '-' }}</td>
                 </tr>
             @empty
                 <tr>

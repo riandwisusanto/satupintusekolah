@@ -21,16 +21,27 @@ const exportPdf = async () => {
     try {
         const params = new URLSearchParams(props.filters).toString()
         const url = `${import.meta.env.VITE_API_PATH}/api/v1/reports/${props.reportType}/export-pdf?${params}`
-        
-        // Create temporary link and trigger download
+
+        const res = await fetch(url, {
+            headers: {
+                Authorization: `Bearer ${JSON.parse(localStorage.getItem('token')).token}`
+            }
+        })
+
+        if (!res.ok) {
+            alertError('Gagal export PDF: ' + res.statusText)
+            return
+        }
+
+        const blob = await res.blob()
+        const blobUrl = URL.createObjectURL(blob)
+
         const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', `laporan-${props.reportType}-${Date.now()}.pdf`)
-        link.setAttribute('target', '_blank')
-        document.body.appendChild(link)
+        link.href = blobUrl
+        link.download = `laporan-${props.reportType}-${Date.now()}.pdf`
         link.click()
-        document.body.removeChild(link)
-        
+
+        URL.revokeObjectURL(blobUrl)
         alertSuccess('Export PDF berhasil!')
     } catch (err) {
         alertError('Gagal export PDF: ' + err.message)
@@ -44,20 +55,27 @@ const exportExcel = async () => {
     try {
         const params = new URLSearchParams(props.filters).toString()
         const url = `${import.meta.env.VITE_API_PATH}/api/v1/reports/${props.reportType}/export-excel?${params}`
-        
-        // Create temporary link and trigger download
+
+        const res = await fetch(url, {
+            headers: {
+                Authorization: `Bearer ${JSON.parse(localStorage.getItem('token')).token}`
+            }
+        })
+
+        const blob = await res.blob()
+        const blobUrl = URL.createObjectURL(blob)
+
         const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', `laporan-${props.reportType}-${Date.now()}.xlsx`)
-        document.body.appendChild(link)
+        link.href = blobUrl
+        link.download = `laporan-${props.reportType}-${Date.now()}.xlsx`
         link.click()
-        document.body.removeChild(link)
-        
-        alertSuccess('Export Excel berhasil!')
+
+        URL.revokeObjectURL(blobUrl)
     } catch (err) {
         alertError('Gagal export Excel: ' + err.message)
     } finally {
         loading.value = false
+        alertSuccess('Export Excel berhasil!')
     }
 }
 </script>
