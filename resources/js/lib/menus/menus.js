@@ -115,6 +115,13 @@ export const sidebarMenus = [
                 icon: 'fas fa-user-clock',
                 to: '/reports/teacher-attendance',
                 permission: 'reports.teacher_attendance.view',
+            },
+            {
+                key: 'report-teacher-journals',
+                label: 'Jurnal Guru',
+                icon: 'fas fa-book',
+                to: '/reports/teacher-journals',
+                permission: 'reports.teacher_journals.view',
             }
         ]
     }

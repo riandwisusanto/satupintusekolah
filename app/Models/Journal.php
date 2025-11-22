@@ -56,4 +56,9 @@ class Journal extends Model
     {
         return $this->belongsTo(Classroom::class, 'class_id');
     }
+
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
+    }
 }

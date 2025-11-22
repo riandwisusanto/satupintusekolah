@@ -43,4 +43,5 @@ return [
     'student_attendances.view',
 
     'reports.teacher_attendance.view',
+    'reports.teacher_journals.view',
 ];
