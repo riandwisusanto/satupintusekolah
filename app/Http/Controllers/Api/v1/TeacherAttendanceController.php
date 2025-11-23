@@ -163,7 +163,9 @@ class TeacherAttendanceController extends Controller
     public function getAttendanceHistory(Request $request, $teacher_id = null)
     {
         $datas = ApiQueryHelper::apply(
-            TeacherAttendance::query(),
+            TeacherAttendance::when($teacher_id, function ($query) use ($teacher_id) {
+                return $query->where('teacher_id', $teacher_id);
+            }),
             TeacherAttendance::apiQueryConfig()
         );
         try {

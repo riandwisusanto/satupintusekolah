@@ -13,6 +13,10 @@ const loading = ref(false)
 const currentFilter = ref('recent') // recent, today, week, month, all
 const { user } = useUser()
 
+const isAdmin = computed(() => {
+    return user.user.role_id === 1
+})
+
 // Summary statistics
 const stats = ref({
     total_days: 0,
@@ -27,9 +31,10 @@ const recentAttendances = computed(() => {
 
 // Table columns for modal
 const detailColumns = [
-    { field: 'date', display: 'Tanggal', sortable: true },
-    { field: 'time_in', display: 'In', sortable: true },
-    { field: 'time_out', display: 'Out', sortable: true },
+    { field: 'date', display: 'Tanggal', sortable: false },
+    ...(isAdmin.value ? [{ field: 'teacher.name', display: 'Guru', sortable: false }] : []),
+    { field: 'time_in', display: 'In', sortable: false },
+    { field: 'time_out', display: 'Out', sortable: false },
     { field: 'photo_in', display: 'Foto In', sortable: false },
     { field: 'photo_out', display: 'Foto Out', sortable: false }
 ]
@@ -51,7 +56,7 @@ const calculateWorkDuration = (timeIn, timeOut) => {
 
 const fetchSummaryStats = async () => {
     try {
-        const { ok, data } = await apiRequest(`teacher-attendances/monthly-report?month=${dayjs().format('YYYY-MM')}`)
+        const { ok, data } = await apiRequest(`teacher-attendances/monthly-report?month=${dayjs().format('YYYY-MM')}${!isAdmin.value ? `&teacher_id=${user.user.id}` : ''}`)
         if (ok) {
             
             const {statistics} = data.data
@@ -110,6 +115,21 @@ const refreshData = () => {
     fetchRecentAttendances()
 }
 
+const getStatus = (status) => {
+    switch (status) {
+        case 'check_in':
+            return 'Hadir'
+        case 'check_out':
+            return 'Hadir'
+        case 'sick':
+            return 'Sakit'
+        case 'permission':
+            return 'Izin'
+        default:
+            return 'Cuti'
+    }
+}
+
 // Lifecycle
 onMounted(() => {
     refreshData()
@@ -162,7 +182,7 @@ onMounted(() => {
                 <div class="col-lg-4 col-6">
                     <div class="small-box bg-primary">
                         <div class="inner">
-                            <h3>{{ stats.attendance_rate || 0 }}%</h3>
+                            <h3>{{ stats.attendance_rate.toFixed(2) || 0 }}%</h3>
                             <p>Tingkat Kehadiran</p>
                         </div>
                         <div class="icon">
@@ -217,10 +237,12 @@ onMounted(() => {
                             <thead class="thead-light">
                                 <tr>
                                     <th>Tanggal</th>
+                                    <th v-if="isAdmin">Guru</th>
                                     <th>In</th>
                                     <th>Out</th>
                                     <th>Durasi</th>
-                                    <th>Aksi</th>
+                                    <th>Status</th>
+                                    <th>Foto</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -228,9 +250,11 @@ onMounted(() => {
                                     <td>
                                         <span class="badge badge-secondary">{{ formatDate(attendance.date) }}</span>
                                     </td>
+                                    <td v-if="isAdmin">{{ attendance.teacher?.name }}</td>
                                     <td>{{ formatTime(attendance.time_in) }}</td>
                                     <td>{{ formatTime(attendance.time_out) }}</td>
                                     <td>{{ attendance.work_duration || calculateWorkDuration(attendance.time_in, attendance.time_out) }}</td>
+                                    <td>{{ getStatus(attendance.status) }}</td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
                                             <button 
