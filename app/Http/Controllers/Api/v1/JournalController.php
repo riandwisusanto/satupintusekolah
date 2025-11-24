@@ -21,7 +21,9 @@ class JournalController extends Controller
     public function index()
     {
         $datas = ApiQueryHelper::apply(
-            Journal::query(),
+            Journal::when(auth()->user()->isTeacher(), function ($query) {
+                $query->where('teacher_id', auth()->user()->id);
+            }),
             Journal::apiQueryConfig()
         );
         try {
@@ -111,11 +113,11 @@ class JournalController extends Controller
     {
         try {
             $user = auth()->user();
-            
+
             // Admin Dashboard Logic
             if ($user->isAdmin()) {
                 $today = Carbon::now()->format('Y-m-d');
-                
+
                 $days = [
                     'Sunday' => 'Minggu',
                     'Monday' => 'Senin',
@@ -125,33 +127,33 @@ class JournalController extends Controller
                     'Friday' => 'Jumat',
                     'Saturday' => 'Sabtu'
                 ];
-                
+
                 $dayName = $days[Carbon::now()->format('l')];
-                
+
                 // Stats
                 $totalJournalsToday = Journal::where('date', $today)->count();
-                
+
                 // Get teachers who have schedule today
                 $scheduledTeacherIds = Schedule::where('day', $dayName)
                     ->distinct('teacher_id')
                     ->pluck('teacher_id');
-                    
+
                 $totalTeachersScheduled = $scheduledTeacherIds->count();
-                
+
                 // Get teachers who submitted journal today
                 $submittedTeacherIds = Journal::where('date', $today)
                     ->distinct('teacher_id')
                     ->pluck('teacher_id');
-                    
+
                 $totalTeachersSubmitted = $submittedTeacherIds->count();
-                
+
                 // Recent Journals
                 $recentJournals = Journal::with(['teacher', 'classroom', 'subjects.subject'])
                     ->where('date', $today)
                     ->orderBy('created_at', 'desc')
                     ->take(10)
                     ->get();
-                    
+
                 // Teachers who haven't submitted
                 $notSubmittedTeacherIds = $scheduledTeacherIds->diff($submittedTeacherIds);
                 $teachersNotSubmitted = User::whereIn('id', $notSubmittedTeacherIds)
@@ -160,7 +162,7 @@ class JournalController extends Controller
 
                 // Master Data Stats
                 $totalStudents = \App\Models\Student::where('active', true)->count();
-                $totalTeachers = User::where('active', true)->whereHas('role', function($q) {
+                $totalTeachers = User::where('active', true)->whereHas('role', function ($q) {
                     $q->where('name', 'teacher');
                 })->count();
                 $totalClasses = Classroom::where('active', true)->count();
@@ -169,11 +171,11 @@ class JournalController extends Controller
                 // Attendance Stats
                 // Get total scheduled classes for today (unique by class_id and subject_id)
                 $totalScheduledClasses = Schedule::where('day', $dayName)->count();
-                
+
                 // Get total attendance submitted today
                 // We need to count how many subjects have been attended to.
                 // StudentAttendance hasMany StudentAttendanceSubject.
-                $attendanceSubmittedCount = \App\Models\StudentAttendanceSubject::whereHas('studentAttendance', function($q) use ($today) {
+                $attendanceSubmittedCount = \App\Models\StudentAttendanceSubject::whereHas('studentAttendance', function ($q) use ($today) {
                     $q->where('date', $today);
                 })->count();
 
@@ -185,7 +187,7 @@ class JournalController extends Controller
                         'teachers_scheduled' => $totalTeachersScheduled,
                         'teachers_submitted' => $totalTeachersSubmitted,
                         'completion_rate' => $totalTeachersScheduled > 0 ? round(($totalTeachersSubmitted / $totalTeachersScheduled) * 100, 1) : 0,
-                        
+
                         // Master Data
                         'total_students' => $totalStudents,
                         'total_teachers' => $totalTeachers,
@@ -204,7 +206,7 @@ class JournalController extends Controller
 
             // Teacher Dashboard Logic
             $today = Carbon::now()->format('Y-m-d');
-            
+
             $days = [
                 'Sunday' => 'Minggu',
                 'Monday' => 'Senin',
@@ -214,7 +216,7 @@ class JournalController extends Controller
                 'Friday' => 'Jumat',
                 'Saturday' => 'Sabtu'
             ];
-            
+
             $dayName = $days[Carbon::now()->format('l')];
             if ($dayName == 'Minggu') {
                 return collect([]);
@@ -261,7 +263,7 @@ class JournalController extends Controller
 
                     $schedule->is_attendance_filled = $isAttendanceFilled;
                     $schedule->is_journal_filled = $isJournalFilled;
-                    
+
                     return $schedule;
                 });
 
@@ -290,7 +292,7 @@ class JournalController extends Controller
             for ($i = 0; $i <= 7; $i++) {
                 $date = Carbon::now()->subDays($i);
                 $dayName = $days[$date->format('l')];
-                
+
                 if ($dayName == 'Minggu') continue; // Skip Sunday
 
                 // Get schedules for this day
@@ -310,7 +312,7 @@ class JournalController extends Controller
                     foreach ($schedules as $schedule) {
                         $isCovered = $journals->contains(function ($journal) use ($schedule) {
                             return $journal->class_id == $schedule->class_id &&
-                                   $journal->subjects->contains('subject_id', $schedule->subject_id);
+                                $journal->subjects->contains('subject_id', $schedule->subject_id);
                         });
 
                         if (!$isCovered) {
@@ -379,7 +381,7 @@ class JournalController extends Controller
                 'Friday' => 'Jumat',
                 'Saturday' => 'Sabtu'
             ];
-            
+
             $dayName = $days[Carbon::now()->format('l')];
             if ($dayName == 'Minggu') {
                 return collect([]);
@@ -418,7 +420,7 @@ class JournalController extends Controller
                 'Friday' => 'Jumat',
                 'Saturday' => 'Sabtu'
             ];
-            
+
             $dayName = $days[Carbon::now()->format('l')];
             if ($dayName == 'Minggu') {
                 return collect([]);

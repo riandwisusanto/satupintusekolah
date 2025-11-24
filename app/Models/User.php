@@ -88,6 +88,11 @@ class User extends Authenticatable
         return $this->role_id === 1;
     }
 
+    public function isTeacher(): bool
+    {
+        return $this->role_id === 2;
+    }
+
     public static function apiQueryConfig(): array
     {
         return [
