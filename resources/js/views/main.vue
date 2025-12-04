@@ -38,7 +38,7 @@ const bg = ref('')
 const loadBackground = async () => {
     const { ok, data } = await apiRequest('configurations/background_image')
     if (ok) {
-        bg.value = `/storage/${data.data.background_image}`
+        bg.value = `/storage/${data.data?.background_image}`
     }
 }
 

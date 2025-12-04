@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            ConfigurationSettingSeeder::class,
             ClassroomSeeder::class,
             StudentSeeder::class,
             SubjectSeeder::class,
